@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kitchen</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h1>Kitchen Orders</h1>
+<div id="orders-container"></div>
+
+<script>
+    function fetchOrders() {
+        $.ajax({
+            url: '/kitchen/orders',
+            method: 'GET',
+            success: function(data) {
+                $('#orders-container').html('');
+                data.forEach(function(order) {
+                    const card = `
+                        <div class="order-card" data-order-id="${order.orderId}">
+                            <div class="order-card-content">
+                                <div>${order.menuItem.name}</div>
+                                <div>Quantity: ${order.count}</div>
+                                <button onclick="markAsReady(${order.orderId})">ГОТОВО</button>
+                            </div>
+                        </div>
+                    `;
+                    $('#orders-container').append(card);
+                });
+            }
+        });
+    }
+
+    function markAsReady(orderId) {
+        $.ajax({
+            url: '/kitchen/order/ready',
+            method: 'POST',
+            data: { orderId: orderId },
+            success: function(response) {
+                fetchOrders();
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        fetchOrders();
+        setInterval(fetchOrders, 2000); // обновляем список каждые 2 секунды
+    });
+</script>
+</body>
+</html>

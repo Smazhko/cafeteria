@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/style_mobile.css}">
+</head>
+<body>
+<h1>Menu</h1>
+<form id="orderForm" method="post" action="/order">
+    <div th:each="menuItem, stat : ${menuItems}" class="card">
+        <img th:src="@{${menuItem.imageURL}}" alt="Image not available">
+        <h2 th:text="${menuItem.name}"></h2>
+        <p th:text="${menuItem.description}"></p>
+        <div>
+            <span class="price" th:text="'Цена: ' + ${menuItem.price} + ' ₽'"></span>
+            <span class="total-price">Общая стоимость: <span th:text="'0 ₽'"></span></span>
+        </div>
+        <div class="card-buttons">
+            <button type="button" onclick="decreaseQuantity(this)">-</button>
+            <span class="quantity">0</span>
+            <button type="button" onclick="increaseQuantity(this)">+</button>
+        </div>
+        <input type="hidden" th:name="items[__${stat.index}__].menuItemId" th:value="${menuItem.foodId}">
+        <input type="hidden" th:name="items[__${stat.index}__].quantity" value="0" class="quantity-input">
+    </div>
+    <input type="hidden" name="cardId" value="1"> <!-- Пример ID бонусной карты -->
+    <button type="submit" class="order-button">ОФОРМИТЬ ЗАКАЗ</button>
+</form>
+
+<script>
+    function decreaseQuantity(button) {
+        const quantitySpan = button.nextElementSibling;
+        let quantity = parseInt(quantitySpan.textContent);
+        if (quantity > 0) {
+            quantitySpan.textContent = --quantity;
+            updateTotalPrice(button.closest('.card'), quantity);
+        }
+    }
+
+    function increaseQuantity(button) {
+        const quantitySpan = button.previousElementSibling;
+        let quantity = parseInt(quantitySpan.textContent);
+        quantitySpan.textContent = ++quantity;
+        updateTotalPrice(button.closest('.card'), quantity);
+    }
+
+    function updateTotalPrice(card, quantity) {
+        const priceText = card.querySelector('.price').textContent;
+        const price = parseFloat(priceText.match(/[\d.]+/)[0]);
+        const totalPriceSpan = card.querySelector('.total-price span');
+        totalPriceSpan.textContent = (price * quantity).toFixed(2) + ' ₽';
+        card.querySelector('.quantity-input').value = quantity;
+    }
+
+</script>
+</body>
+</html>

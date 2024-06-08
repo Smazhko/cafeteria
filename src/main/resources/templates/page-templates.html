@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="https://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>Spring Boot Tutorial</title>
+		<link rel="stylesheet" th:href="@{/css/style.css}">
+	</head>
+
+	<body>
+
+		<div th:fragment="navbar">
+			<nav class="navbar center">
+				<h3 sec:authorize="!isAuthenticated()"  class="logo">Spring Security + DB (Guest)</h3>
+				<h3 sec:authorize="hasRole('ADMIN')" class="logo">Spring Security + DB (Admin)</h3>
+				<h3 sec:authorize="hasRole('USER')" class="logo">Spring Security + DB (User)</h3>
+				<ul class="nav-links">
+					<li sec:authorize="!isAuthenticated()" class="nav-item"><a href="/">Home</a></li>
+					<li sec:authorize="hasRole('ADMIN')" class="nav-item"><a href="/admin">Home</a></li>
+					<li sec:authorize="hasRole('USER')" class="nav-item"><a href="/user">Home</a></li>
+					<li sec:authorize="!isAuthenticated()" class="nav-item">
+						<a href="/login"><img src="" alt="">
+							<img class="imgButton" src="/img/login1.png" alt="">
+						</a></li>
+					<li sec:authorize="isAuthenticated()" class="nav-item">
+						<form class="link" th:action="@{/logout}" method="post">
+							<input class="imgButtonInput" type="submit" value="">
+						</form></li>
+				</ul>
+			</nav>
+		</div>
+
+		<div class="center" th:fragment="welcome">
+			<h2 sec:authorize="!isAuthenticated()">Welcome Guest!</h2>
+			<h2 sec:authorize="hasRole('USER')">Welcome User!</h2>
+			<h2 sec:authorize="hasRole('ADMIN')">Welcome Admin!</h2>
+		</div>
+
+
+		<div class="center" th:fragment="add-new-product-form">
+			<h2>Products</h2>
+			<form class="form-block" action="admin" th:object="${newProduct}" method="post">
+				<span class="form-label">Name</span>
+				<input class="form-control" type="text" required th:field="*{name}" id="newProdName" placeholder="Name"><br>
+				<span class="form-label">Price</span>
+				<input class="form-control" type="number" required th:field="*{price}" id="newProdPrice" placeholder="Price"><br>
+				<span class="form-label">Count</span>
+				<input class="form-control" type="number" required th:field="*{count}" id="newProdCount" placeholder="Count"><br>
+				<div style="width: 100%; text-align: right;">
+					<input class="imgButton" type="submit" value="" style="background: url('/img/add.png') no-repeat; background-size: cover;">&nbsp;&nbsp;&nbsp;&nbsp;
+				</div>
+			</form>
+		</div>
+
+
+		<div th:fragment="prod-list" class="center">
+			<h3>Products List</h3>
+			<table class="table table-bordered">
+				<thead>
+				<tr>
+					<th>Name</th>
+					<th>Price</th>
+					<th>Count</th>
+					<th class="unbordered-cell"></th>
+				</tr>
+				</thead>
+				<tbody>
+				<tr th:each="product : ${prodList}">
+					<td style="text-align: left;">
+						<a th:href="@{/{id}(id=${product.id})}" th:text="${product.name}">product.name</a>
+					</td>
+					<td th:text="${product.price}" style="text-align: right;">product.price</td>
+					<td th:text="${product.count}" style="text-align: right;">product.count</td>
+					<td class="unbordered-cell">
+						<a sec:authorize="hasRole('USER')" th:href="@{/product_buy/{id}(id=${product.id})}" title="Buy product">
+							<img class="imgButton" src="/img/buy.png">
+						</a>
+						<a sec:authorize="hasRole('ADMIN')" th:href="@{/product_delete/{id}(id=${product.id})}" title="Delete product">
+							<img class="imgButton" src="/img/recycle1.png">
+						</a>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+
+
+		<div th:fragment="one-product" class="center">
+			<div class="form-block">
+				<span class="form-label">ID</span>
+				<input class="form-control" type="number" readonly th:value="${product.id}" id="id" placeholder="Name"><br>
+				<span class="form-label">Name</span>
+				<input class="form-control" type="text" readonly th:value="${product.name}" id="name" placeholder="Name"><br>
+				<span class="form-label">Price</span>
+				<input class="form-control" type="number" readonly th:value="${product.price}" id="price" placeholder="Price"><br>
+				<span class="form-label">Count</span>
+				<input class="form-control" type="number" readonly th:value="${product.count}" id="count" placeholder="Count"><br>
+
+				<div style="width: 100%; text-align: right;">
+					<a sec:authorize="hasRole('USER')" th:href="@{/product_buy/{id}(id=${product.id})}">
+						<img class="imgButton" src="/img/buy.png"></a>&nbsp;&nbsp;
+					<a sec:authorize="hasRole('ADMIN')" th:href="@{/product_edit/{id}(id=${product.id})}">
+						<img class="imgButton" src="/img/edit.png"></a>&nbsp;&nbsp;
+					<a sec:authorize="hasRole('ADMIN')" th:href="@{/product_delete/{id}(id=${product.id})}">
+						<img class="imgButton" src="/img/recycle1.png"></a>&nbsp;&nbsp;
+					<a sec:authorize="hasRole('USER')" th:href="@{/user}">
+						<img class="imgButton" src="/img/goback.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+					<a sec:authorize="hasRole('ADMIN')" th:href="@{/admin}">
+						<img class="imgButton" src="/img/goback.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+				</div>
+			</div>
+		</div>
+
+
+		<div th:fragment="edit-product" class="center">
+			<form class="form-block" action="#" th:action="@{id}" th:object="${prodToEdit}" method="post">
+				<span class="form-label">ID</span>
+				<input class="form-control" type="number" readonly th:field="*{id}" th:value="${prodToEdit.id}" id="id" placeholder="Name"><br>
+				<span class="form-label">Name</span>
+				<input class="form-control" type="text" th:field="*{name}" th:value="${prodToEdit.name}" id="name" placeholder="Name"><br>
+				<span class="form-label">Price</span>
+				<input class="form-control" type="number" th:field="*{price}" th:value="${prodToEdit.price}" id="price" placeholder="Price"><br>
+				<span class="form-label">Count</span>
+				<input class="form-control" type="number" th:field="*{count}" th:value="${prodToEdit.count}" id="count" placeholder="Count"><br>
+
+				<div style="width: 100%; text-align: right;">
+					<input class="imgButton" type="submit" value="" style="background: url('/img/save.png') no-repeat; background-size: cover;">&nbsp;&nbsp;
+					<a th:href="@{/admin}"><img class="imgButton" src="/img/goback.png"></a>&nbsp;&nbsp;&nbsp;&nbsp;
+				</div>
+			</form>
+		</div>
+
+
+		<div th:fragment="main-text"></div>
+		<div th:fragment="footer" class="footer center">
+			<p style="margin: auto;">Seminar 7 - Spring Security Basics</p>
+		</div>
+
+
+	</body>
+</html>
