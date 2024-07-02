@@ -6,5 +6,5 @@ import ru.gb.cafeteria.domain.ReceiptStatus;
 
 @Repository
 public interface ReceiptStatusRepository extends JpaRepository<ReceiptStatus, Long> {
-    ReceiptStatus findByName(String statusName);
+    ReceiptStatus findByStatusName(String statusName);
 }

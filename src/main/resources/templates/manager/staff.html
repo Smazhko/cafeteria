@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Сотрудники</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container mt-2">
+    <h2 class="text-center mb-4"><a th:href="@{/manager/menu}">Меню</a> <a th:href="@{/manager/receipts}">Финансы</a> Персонал</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="form-inline">
+            <label for="roleFilter" class="mr-2">Фильтр по роли:</label>
+            <select id="roleFilter" class="form-control mr-2" style="width: 30ch;" onchange="filterByRole()">
+                <option th:value="0" th:text="'Все'" th:selected="${selectedRole == null}">Все</option>
+                <option th:each="role : ${roles}" th:value="${role.roleId}" th:text="${role.name}" th:selected="${selectedRole != null and selectedRole == role.roleId}"></option>
+            </select>
+        </div>
+        <a class="btn btn-primary" th:href="@{/manager/staff/add}">Добавить сотрудника</a>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-4" th:each="staff : ${staffList}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title mb-1" th:text="${staff.name}">Имя</h5>
+                    <p class="card-text mb-1"><strong>Телефон:</strong> <span th:text="${staff.phone}"></span></p>
+                    <p class="card-text mb-1"><strong>Должность:</strong> <span th:text="${staff.post}"></span></p>
+                    <p class="card-text mb-1"><strong>Зарплата:</strong> <span th:text="${staff.salary}"></span></p>
+                    <p class="card-text mb-1"><strong>Дата принятия:</strong> <span th:text="${#temporals.format(staff.dateBegin, 'dd.MM.yyyy')}"></span></p>
+                    <p class="card-text mb-1"><strong>Дата увольнения:</strong> <span th:text="${staff.dateEnd != null ? #temporals.format(staff.dateEnd, 'dd.MM.yyyy') : 'Активен'}"></span></p>
+                    <p class="card-text mb-1"><strong>Логин:</strong> <span th:text="${staff.user.username}"></span></p>
+                    <p class="card-text mb-1"><strong>Роль:</strong> <span th:text="${staff.user.role.name}"></span></p>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{'/manager/staff/update/' + ${staff.staffId}}" class="btn btn-warning">Редактировать</a>
+
+                    <!-- Кнопка "Уволить" -->
+                    <form th:if="${staff.dateEnd == null and staff.user.role.name != 'ROLE_MANAGER' and staff.user.role.name != 'ROLE_ADMIN'}" th:action="@{/manager/staff/inactivate}" method="post" class="d-inline">
+                        <input type="hidden" name="staffId" th:value="${staff.staffId}"/>
+                        <button type="button" class="btn btn-danger" th:onclick="'confirmInactivation(' + ${staff.staffId} + ', this.form)'">Уволить</button>
+                    </form>
+
+                    <!-- Кнопка "Принять" -->
+                    <form th:if="${staff.dateEnd != null and staff.user.role.name != 'ROLE_MANAGER' and staff.user.role.name != 'ROLE_ADMIN'}" th:action="@{/manager/staff/reactivate}" method="post" class="d-inline">
+                        <input type="hidden" name="staffId" th:value="${staff.staffId}"/>
+                        <button type="button" class="btn btn-success" th:onclick="'confirmReactivation(' + ${staff.staffId} + ', this.form)'">Принять</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения увольнения -->
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Подтверждение</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                question
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Нет</button>
+                <button type="button" class="btn btn-danger" id="confirmButton">Да</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function confirmInactivation(staffId, form) {
+        $('#confirmModal').modal('show');
+        document.getElementById('confirmButton').className = 'btn btn-danger'; // Set class for confirm button
+        document.getElementById('confirmModalLabel').textContent = 'Подтверждение увольнения';
+        document.querySelector('.modal-body').textContent = 'Вы уверены, что хотите уволить сотрудника?';
+        document.getElementById('confirmButton').onclick = function () {
+            form.submit();
+        };
+    }
+
+    function confirmReactivation(staffId, form) {
+        $('#confirmModal').modal('show');
+        document.getElementById('confirmButton').className = 'btn btn-success';
+        document.getElementById('confirmModalLabel').textContent = 'Подтверждение повторного принятия';
+        document.querySelector('.modal-body').textContent = 'Вы уверены, что хотите вновь принять этого сотрудника на работу?';
+        document.getElementById('confirmButton').onclick = function () {
+            form.submit();
+        };
+    }
+
+    function filterByRole() {
+        const roleId = document.getElementById('roleFilter').value;
+        window.location.href = '/manager/staff?roleId=' + roleId;
+    }
+
+</script>
+</body>
+</html>

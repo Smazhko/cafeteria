@@ -12,6 +12,8 @@
 
 	<body>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+
 		<div th:fragment="navbar">
 			<nav class="navbar center">
 				<h3 sec:authorize="!isAuthenticated()"  class="logo">Spring Security + DB (Guest)</h3>
@@ -33,12 +35,15 @@
 			</nav>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+
 		<div class="center" th:fragment="welcome">
 			<h2 sec:authorize="!isAuthenticated()">Welcome Guest!</h2>
 			<h2 sec:authorize="hasRole('USER')">Welcome User!</h2>
 			<h2 sec:authorize="hasRole('ADMIN')">Welcome Admin!</h2>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
 		<div class="center" th:fragment="add-new-product-form">
 			<h2>Products</h2>
@@ -55,6 +60,7 @@
 			</form>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
 		<div th:fragment="prod-list" class="center">
 			<h3>Products List</h3>
@@ -87,6 +93,7 @@
 			</table>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
 		<div th:fragment="one-product" class="center">
 			<div class="form-block">
@@ -114,6 +121,7 @@
 			</div>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
 		<div th:fragment="edit-product" class="center">
 			<form class="form-block" action="#" th:action="@{id}" th:object="${prodToEdit}" method="post">
@@ -133,12 +141,14 @@
 			</form>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
-		<div th:fragment="main-text"></div>
 		<div th:fragment="footer" class="footer center">
 			<p style="margin: auto;">Seminar 7 - Spring Security Basics</p>
 		</div>
 
+<!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
 
+		<div th:fragment="main-text"></div>
 	</body>
 </html>

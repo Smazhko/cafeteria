@@ -43,3 +43,98 @@
     }
 
 }
+
+/* ----------- новые стили --------------*/
+.card {
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        margin: 10px;
+        display: inline-block;
+        width: 200px;
+        text-align: center;
+}
+.card img {
+    max-width: 100%;
+    height: auto;
+}
+.description{
+    height: 3em;
+}
+.card-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.card-buttons button {
+    margin: 5px;
+}
+.quantity {
+    margin: 0 10px;
+}
+.prices {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.price {
+    color: #FF374E;
+    font-size: 1.3em;
+    font-weight: 600;
+}
+.total-price {
+    color: #d32f2f; /* Средне яркий красный */
+    font-size: 0.9em;
+    margin-left: 10px;
+}
+.order-button {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4CAF50; /* зеленый */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.order-card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    width: 400px;
+    display: flex;
+    align-items: center;
+}
+.order-card img {
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+}
+.order-card-content {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.order-card-content div {
+    flex: 1;
+}
+.receipt-total-sum {
+    font-size: 150%;
+    margin-top: 20px;
+}
+.receipt-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 100px;
+}
+.receipt-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}

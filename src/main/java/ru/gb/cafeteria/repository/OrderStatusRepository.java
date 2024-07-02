@@ -6,5 +6,5 @@ import ru.gb.cafeteria.domain.OrderStatus;
 
 @Repository
 public interface OrderStatusRepository extends JpaRepository<OrderStatus, Long> {
-    OrderStatus findByName(String name);
+    OrderStatus findByStatusName(String name);
 }

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "menu_items")
@@ -12,7 +13,7 @@ public class MenuItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "food_id")
-    private Long foodId;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -21,17 +22,26 @@ public class MenuItem {
     @JoinColumn(name = "group_id", nullable = false)
     private FoodGroup foodGroup;
 
-    private String description = "";
+    private String description;
 
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "special_price", nullable = false, precision = 10, scale = 2)
+    @Column(name = "special_price", precision = 10, scale = 2)
     private BigDecimal specialPrice;
 
     @Column(name = "image")
     private String imageURL;
 
-    @Column(nullable = false)
+    @Column(name="is_active", nullable = false)
     private Boolean active;
+
+    @Column(name="is_archived", nullable = false)
+    private Boolean archived;
+
+    @Column(name="status_change_time", nullable = false)
+    private LocalDateTime statusChangeTime;
+
+    @Transient
+    private Integer quantity = 0;
 }

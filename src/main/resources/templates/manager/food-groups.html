@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Группы продуктов</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Инициализация кнопки "Создать"
+            $("#addGroupModal").on("show.bs.modal", function(event) {
+                var modal = $(this);
+                modal.find(".modal-title").text("Введите название группы");
+                modal.find("#saveButton").text("Создать");
+            });
+
+            // Инициализация кнопки "Изменить"
+            $("#editGroupModal").on("show.bs.modal", function(event) {
+                var button = $(event.relatedTarget);
+                var groupId = button.data("id");
+                var groupName = button.data("name");
+                var groupPosition = button.data("position");
+                var groupNameWithCount = button.data("name");
+
+                // Извлечение чистого названия группы без количества блюд
+
+                var modal = $(this);
+                modal.find(".modal-title").text("Переименовать группу");
+                modal.find("#groupName").val(groupName);
+                modal.find("#groupId").val(groupId);
+                modal.find("#groupPosition").val(groupPosition);
+                modal.find("#saveButton").text("Сохранить");
+            });
+
+            // Обработчик кнопки "Вверх"
+            $(".move-up").click(function() {
+                var groupId = $(".group-item.selected").data("id");
+                if (groupId) {
+                    $.post("/manager/food-groups/move-up/" + groupId, function() {
+                        // Сохранение выбранного элемента перед перезагрузкой
+                        localStorage.setItem('selectedGroupId', groupId);
+                        location.reload();
+                    });
+                }
+            });
+
+            // Обработчик кнопки "Вниз"
+            $(".move-down").click(function() {
+                var groupId = $(".group-item.selected").data("id");
+                if (groupId) {
+                    $.post("/manager/food-groups/move-down/" + groupId, function() {
+                        // Сохранение выбранного элемента перед перезагрузкой
+                        localStorage.setItem('selectedGroupId', groupId);
+                        location.reload();
+                    });
+                }
+            });
+
+            // Обработчик выбора элемента списка
+            $(".group-item").click(function() {
+                $(".group-item").removeClass("selected");
+                $(this).addClass("selected");
+                var groupId = $(this).data("id");
+                var groupName = $(this).data("name");
+                var groupPosition = $(this).data("position");
+                var groupNameWithCount = $(this).text();
+
+                $("#editButton").data("id", groupId);
+                $("#editButton").data("name", groupName);
+                $("#editButton").data("position", groupPosition);
+                // Сохранение выбранного элемента в localStorage
+                localStorage.setItem('selectedGroupId', groupId);
+                $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
+            });
+
+            // Восстановление выбранного элемента при загрузке страницы
+            var selectedGroupId = localStorage.getItem('selectedGroupId');
+            if (selectedGroupId) {
+                var selectedItem = $(".group-item[data-id='" + selectedGroupId + "']");
+                if (selectedItem.length > 0) {
+                    $(".group-item").removeClass("selected");
+                    selectedItem.addClass("selected");
+                    var groupId = selectedItem.data("id");
+                    var groupName = selectedItem.data("name");
+                    var groupPosition = selectedItem.data("position");
+                    var groupNameWithCount = selectedItem.text();
+
+                    $("#editButton").data("id", groupId);
+                    $("#editButton").data("name", groupName);
+                    $("#editButton").data("position", groupPosition);
+                    $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
+                }
+            } else {
+                // Инициализация кнопки "Изменить" данными первой группы при загрузке страницы
+                var firstGroup = $(".group-item.selected");
+                if (firstGroup.length > 0) {
+                    var groupId = firstGroup.data("id");
+                    var groupName = firstGroup.data("name");
+                    var groupPosition = firstGroup.data("position");
+                    var groupNameWithCount = firstGroup.text();
+
+                    $("#editButton").data("id", groupId);
+                    $("#editButton").data("name", groupName);
+                    $("#editButton").data("position", groupPosition);
+                    $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
+                }
+            }
+
+            // Обработчик кнопки "Удалить"
+            $("#deleteButton").click(function() {
+                var groupId = $(this).data("id");
+                if (groupId) {
+                    $.post("/manager/food-groups/delete/" + groupId, function() {
+                        localStorage.removeItem('selectedGroupId'); // Очистка сохраненного элемента после удаления
+                        location.reload();
+                    });
+                }
+            });
+
+            // Показ сообщения об ошибке, если оно есть
+            var errorMessage = /*[[${errorMessage}]]*/ '';
+            if (errorMessage !== '') {
+                $('#errorModal').modal('show');
+            }
+        });
+    </script>
+</head>
+<body>
+<div class="container mt-2">
+    <h2 class="text-center mb-2">Меню: архив</h2>
+
+    <br>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-75">
+
+            <div style="display: flex; flex-direction: row; align-items: stretch; gap: 12px;">
+                <!-- карточка МЕНЮ -->
+                <div th:fragment="addNewItem" style="width: 50%;">
+                    <a th:href="@{/manager/menu}" class="menu-item-big-text">
+                        <div class="menu-item active">
+                            <img th:src="@{/img/food/menu.png}" alt="menu-pic"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Меню</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- карточка ДОБАВИТЬ -->
+                <div th:fragment="addNewItem" style="width: 50%;">
+                    <a th:href="@{/manager/menu/add}" class="menu-item-big-text">
+                        <div class="menu-item active">
+                            <img th:src="@{/img/food/add-new-dish.png}" alt="image"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Добавить блюдо</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+
+            <br>
+
+            <div class="row">
+                <div class="col-md-8">
+                    <ul id="groupList" class="list-group">
+                        <li th:each="group, groupStat : ${foodGroups}"
+                            th:data-id="${group.groupId}"
+                            th:data-name="${group.name}"
+                            th:data-position="${group.position}"
+                            th:text="${group.name} + ' (' + ${foodCounts.get(group.groupId)} + ')'"
+                            class="group-item list-group-item"
+                            th:classappend="${groupStat.index == 0} ? ' selected' : ''"></li>
+                    </ul>
+                    <button id="addButton" data-toggle="modal" data-target="#addGroupModal"
+                            class="btn btn-primary mt-3">
+                        Создать
+                    </button>
+                    <button id="editButton" data-toggle="modal" data-target="#editGroupModal"
+                            class="btn btn-secondary mt-3">
+                        Изменить
+                    </button>
+                    <button id="deleteButton" class="btn btn-danger mt-3">Удалить</button>
+                </div>
+                <div class="col-md-4 text-center buttons-column">
+                    <button class="btn btn-info move-up">Вверх</button>
+                    <button class="btn btn-info move-down">Вниз</button>
+                </div>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+                <p>ВАЖНО!</p>
+                <ul>
+                    <li>Создание/изменение группы с одинаковыми именами невозможно.</li>
+                    <li>Нельзя удалить группу, ассоциированную с какими-либо пунктами меню. Для этого необходимо
+                        перенести
+                        пункты меню из группы, подлежащей удалению, в другие группы.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для создания группы -->
+<div class="modal fade" id="addGroupModal" tabindex="-1" role="dialog" aria-labelledby="addGroupModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form th:action="@{/manager/food-groups/add}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addGroupModalLabel">Введите название группы</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="groupName" name="name" class="form-control" required>
+                    <input type="hidden" name="position" th:value="${foodGroups.size() + 1}">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary" id="saveButton">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования группы -->
+<div class="modal fade" id="editGroupModal" tabindex="-1" role="dialog" aria-labelledby="editGroupModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form th:action="@{/manager/food-groups/update}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editGroupModalLabel">Переименовать группу</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="groupName" name="name" class="form-control" required>
+                    <input type="hidden" id="groupId" name="groupId">
+                    <input type="hidden" id="groupPosition" name="position">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-primary" id="saveButton">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

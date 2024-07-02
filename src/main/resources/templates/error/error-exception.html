@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Error</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<div class="container">
+    <h1>Ошибка</h1>
+    <p th:text="${errorMessage}">Произошла ошибка</p>
+    <a href="/" class="btn btn-primary">Вернуться на главную</a>
+</div>
+</body>
+</html>

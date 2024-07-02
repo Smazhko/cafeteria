@@ -5,55 +5,118 @@
     <title>Menu</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/style_mobile.css}">
+    <style>
+        .selected-items {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            border: 1px solid #000;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+        .quantity-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .quantity-input {
+            width: 30px;
+            text-align: center;
+            margin: 0 10px;
+            border: 1px solid;
+            border-color: #AAE4FF;
+            border-radius: 5px;
+
+        }
+        .quantity-button {
+            width: 20px;
+            height: 1.5em;
+            line-height: 1;
+            text-align: center;
+            font-size: 14px;
+            padding: 0;
+            margin: 0;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-<h1>Menu</h1>
-<form id="orderForm" method="post" action="/order">
-    <div th:each="menuItem, stat : ${menuItems}" class="card">
-        <img th:src="@{${menuItem.imageURL}}" alt="Image not available">
-        <h2 th:text="${menuItem.name}"></h2>
-        <p th:text="${menuItem.description}"></p>
-        <div>
-            <span class="price" th:text="'Цена: ' + ${menuItem.price} + ' ₽'"></span>
-            <span class="total-price">Общая стоимость: <span th:text="'0 ₽'"></span></span>
+<h2>Menu</h2>
+
+<form th:action="@{/receipt-forming}" method="post" th:object="${menuItemList}">
+    <div th:each="menuItem, stat : *{itemList}">
+        <input type="hidden" th:field="*{itemList[__${stat.index}__].id}" />
+        <input type="hidden" th:field="*{itemList[__${stat.index}__].name}" />
+        <input type="hidden" th:field="*{itemList[__${stat.index}__].price}" />
+        <span th:text="*{itemList[__${stat.index}__].name}">MenuItem Name</span>
+        <span th:text="*{itemList[__${stat.index}__].description}">MenuItem Description</span>
+        <span th:text="*{itemList[__${stat.index}__].price}">0.00</span>
+        <span th:text="*{itemList[__${stat.index}__].specialPrice}">MenuItem Special Proce</span>
+        <div class="quantity-wrapper">
+            <button type="button" class="quantity-button" onclick="decreaseQuantity(this)">-</button>
+            <input type="number" th:field="*{itemList[__${stat.index}__].quantity}" readonly class="quantity-input"
+                   th:attr="data-name=*{itemList[__${stat.index}__].name},data-price=*{itemList[__${stat.index}__].price}" />
+            <button type="button" class="quantity-button" onclick="increaseQuantity(this)">+</button>
         </div>
-        <div class="card-buttons">
-            <button type="button" onclick="decreaseQuantity(this)">-</button>
-            <span class="quantity">0</span>
-            <button type="button" onclick="increaseQuantity(this)">+</button>
-        </div>
-        <input type="hidden" th:name="items[__${stat.index}__].menuItemId" th:value="${menuItem.foodId}">
-        <input type="hidden" th:name="items[__${stat.index}__].quantity" value="0" class="quantity-input">
     </div>
-    <input type="hidden" name="cardId" value="1"> <!-- Пример ID бонусной карты -->
-    <button type="submit" class="order-button">ОФОРМИТЬ ЗАКАЗ</button>
+    <button type="submit">Submit Order</button>
 </form>
 
+
+<div class="selected-items">
+    <h3>Selected Items</h3>
+    <ul id="selected-items-list">
+        <!-- List of selected items will be updated here -->
+    </ul>
+    <p id="total-cost">Total Cost: 0.00</p>
+</div>
+
+
 <script>
-    function decreaseQuantity(button) {
-        const quantitySpan = button.nextElementSibling;
-        let quantity = parseInt(quantitySpan.textContent);
-        if (quantity > 0) {
-            quantitySpan.textContent = --quantity;
-            updateTotalPrice(button.closest('.card'), quantity);
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const inputs = document.querySelectorAll('.quantity-input');
+        const selectedItemsList = document.getElementById('selected-items-list');
+        const totalCostElement = document.getElementById('total-cost');
+
+        inputs.forEach(input => {
+            input.addEventListener('input', updateSelectedItems);
+        });
+
+        function updateSelectedItems() {
+            selectedItemsList.innerHTML = ''; // Clear the list
+            let totalCost = 0;
+            inputs.forEach(input => {
+                const quantity = parseFloat(input.value);
+                const name = input.getAttribute('data-name');
+                const price = parseFloat(input.getAttribute('data-price'));
+                if (quantity > 0) {
+                    const cost = quantity * price;
+                    totalCost += cost;
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${name}: ${quantity} x ${price.toFixed(2)} = ${cost.toFixed(2)}`;
+                    selectedItemsList.appendChild(listItem);
+                }
+            });
+            totalCostElement.textContent = `Total Cost: ${totalCost.toFixed(2)}`;
         }
-    }
 
-    function increaseQuantity(button) {
-        const quantitySpan = button.previousElementSibling;
-        let quantity = parseInt(quantitySpan.textContent);
-        quantitySpan.textContent = ++quantity;
-        updateTotalPrice(button.closest('.card'), quantity);
-    }
+        window.decreaseQuantity = function(button) {
+            const input = button.nextElementSibling;
+            let quantity = parseInt(input.value);
+            if (quantity > 0) {
+                input.value = quantity - 1;
+                input.dispatchEvent(new Event('input'));
+            }
+        }
 
-    function updateTotalPrice(card, quantity) {
-        const priceText = card.querySelector('.price').textContent;
-        const price = parseFloat(priceText.match(/[\d.]+/)[0]);
-        const totalPriceSpan = card.querySelector('.total-price span');
-        totalPriceSpan.textContent = (price * quantity).toFixed(2) + ' ₽';
-        card.querySelector('.quantity-input').value = quantity;
-    }
-
+        window.increaseQuantity = function(button) {
+            const input = button.previousElementSibling;
+            let quantity = parseInt(input.value);
+            input.value = quantity + 1;
+            input.dispatchEvent(new Event('input'));
+        }
+    });
 </script>
 </body>
 </html>

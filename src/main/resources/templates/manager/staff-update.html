@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${staff.name} + ' (редактирование)'">Редактирование сотрудника</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<h2 class="text-center my-4">Сотрудники: редактирование</h2>
+
+<div th:fragment="form-update-staff" id="editForm" class="container">
+    <form th:action="@{/manager/staff/update}" th:object="${staff}" method="post" class="needs-validation" novalidate autocomplete="off">
+        <input type="hidden" th:field="*{staffId}"/>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group row">
+                    <label for="name" class="col-sm-3 col-form-label">Имя</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="name" th:field="*{name}" required autocomplete="off">
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите имя.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="phone" class="col-sm-3 col-form-label">Телефон</label>
+                    <div class="col-sm-9">
+                        <input type="tel" class="form-control" id="phone" th:field="*{phone}" pattern="[+()0-9-]+" required autocomplete="off">
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите телефон.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="post" class="col-sm-3 col-form-label">Должность</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="post" th:field="*{post}" required autocomplete="off">
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите должность.
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="salary" class="col-sm-3 col-form-label">Зарплата</label>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="salary" name="price" required
+                               th:field="*{salary}" step="1.00" min="0" value="0.00" autocomplete="off">
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите зарплату.
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <label for="dateBegin" class="col-sm-3 col-form-label">Дата принятия</label>
+                    <div class="col-sm-9">
+                        <input type="date" id="dateBegin" name="dateBegin" class="form-control" th:value="*{dateBegin}" required autocomplete="off">
+                        <div class="invalid-feedback">
+                            Пожалуйста, введите дату принятия.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="dateEnd" class="col-sm-3 col-form-label">Дата увольнения</label>
+                    <div class="col-sm-9">
+                        <input type="date" id="dateEnd" name="dateEnd" class="form-control" th:value="*{dateEnd}">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="username" class="col-sm-3 col-form-label">Логин</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="username" th:value="${staff.user.username}" name="username" pattern="[a-zA-Z0-9_-]+" title="Логин может содержать только латинские буквы, цифры, дефис и нижнее подчёркивание." required autocomplete="off">
+                        <div class="invalid-feedback">
+                            Логин может содержать только латинские буквы, цифры, дефис и нижнее подчёркивание.
+                        </div>
+                        <div class="text-danger" id="usernameError" style="display: none;">Такой логин уже существует</div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="password" class="col-sm-3 col-form-label">Новый пароль</label>
+                    <div class="col-sm-9">
+                        <input type="password" class="form-control" id="password" name="password">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="role" class="col-sm-3 col-form-label">Роль</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="role" name="roleId" required>
+                            <option th:each="role : ${roles}" th:value="${role.roleId}" th:text="${role.name}" th:selected="${staff.user.role.roleId == role.roleId}"></option>
+                        </select>
+                        <div class="invalid-feedback">
+                            Пожалуйста, выберите роль.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <img id="imagePreview" class="img-fluid" th:src="@{/img/staff.jpg}" style="max-width: 100%; margin-left:64px;">
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12 text-center mt-3">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a class="btn btn-secondary" th:href="@{/manager/staff}">Отмена</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $('#name').focus();
+    });
+
+    // Валидация формы
+    (function() {
+        'use strict';
+        window.addEventListener('load', function() {
+            var forms = document.getElementsByClassName('needs-validation');
+            var validation = Array.prototype.filter.call(forms, function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (form.checkValidity() === false || $('#usernameError').is(':visible')) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+
+    // Проверка уникальности логина
+    $('#username').on('input', function() {
+        var username = $(this).val();
+        if (username) {
+            $.ajax({
+                url: '/manager/staff/check-username',
+                type: 'GET',
+                data: {username: username},
+                success: function(response) {
+                    if (response.exists) {
+                        $('#usernameError').show();
+                    } else {
+                        $('#usernameError').hide();
+                    }
+                }
+            });
+        } else {
+            $('#usernameError').hide();
+        }
+    });
+
+    // Валидация ввода только цифр и точки
+    $('#salary').on('keypress', function(event) {
+        const charCode = event.which ? event.which : event.keyCode;
+        if ((charCode !== 46 && (charCode < 48 || charCode > 57)) || (charCode === 46 && $(this).val().indexOf('.') !== -1)) {
+            event.preventDefault();
+        }
+    });
+
+    // Проверка допустимого формата для числа с двумя десятичными знаками
+    $('#salary').on('input', function(event) {
+        const value = event.target.value;
+        if (!/^\d*(\.\d{0,2})?$/.test(value)) {
+            event.target.value = value.slice(0, -1);
+        }
+    });
+
+    // Валидация ввода в поле "Телефон" только разрешённых символов
+    $('#phone').on('input', function(event) {
+        const value = event.target.value;
+        if (!/^[+()0-9-]*$/.test(value)) {
+            event.target.value = value.replace(/[^+()0-9-]/g, '');
+        }
+    });
+</script>
+
+</body>
+</html>

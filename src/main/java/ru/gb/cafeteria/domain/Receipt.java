@@ -2,6 +2,7 @@ package ru.gb.cafeteria.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import ru.gb.cafeteria.bonusSystem.domain.BonusCard;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class Receipt {
     @Column(name = "open_time", nullable = false)
     private LocalDateTime openTime;
 
-    @Column(name = "close_time", nullable = false)
+    @Column(name = "close_time")
     private LocalDateTime closeTime;
 
     @ManyToOne
@@ -28,12 +29,18 @@ public class Receipt {
     private ReceiptStatus receiptStatus;
 
     @ManyToOne
-    @JoinColumn(name = "card_id", nullable = false)
+    @JoinColumn(name = "card_id")
     private BonusCard bonusCard;
 
-    @Column(name = "total_sum", nullable = false, precision = 10, scale = 2)
+    @Column(name = "total_sum", precision = 10, scale = 2)
     private BigDecimal totalSum;
 
-    @OneToMany(mappedBy = "receipt")
+    @Column(name = "discount_sum", precision = 10, scale = 2)
+    private BigDecimal discountSum;
+
+    @Column(name = "final_sum", precision = 10, scale = 2)
+    private BigDecimal finalSum;
+
+    @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Order> orderList;
 }

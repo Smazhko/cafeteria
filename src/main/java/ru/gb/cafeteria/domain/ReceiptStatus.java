@@ -14,5 +14,5 @@ public class ReceiptStatus {
     private Long receiptStatusId;
 
     @Column(name = "status_name", nullable = false, unique = true)
-    private String status_name;
+    private String statusName;
 }

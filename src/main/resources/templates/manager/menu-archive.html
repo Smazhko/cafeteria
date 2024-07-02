@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование блюд</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container mt-2">
+    <h2 class="text-center mb-2">Меню: архив</h2>
+
+    <br>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-75">
+
+            <div style="display: flex; flex-direction: row; align-items: stretch; gap: 12px;">
+                <!-- карточка МЕНЮ -->
+                <div th:fragment="addNewItem" style="width: 50%;">
+                    <a th:href="@{/manager/menu}" class="menu-item-big-text">
+                        <div class="menu-item active">
+                            <img th:src="@{/img/food/menu.png}" alt="menu-pic"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Меню</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- карточка ГРУППЫ  -->
+                <div th:fragment="watchArchive" style="width: 50%;">
+                    <a th:href="@{/manager/food-groups}" class="menu-item-big-text">
+                        <div class="menu-item inactive">
+                            <img th:src="@{/img/food/menu-group.png}" alt="menu-group"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Группы меню</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+            <!-- карточка пункта меню -->
+            <div th:fragment="menuItemsList" th:each="entry : ${groupedMenuItems}">
+                <h3 th:text="${entry.key}">group name</h3>
+                <div th:each="item : ${entry.value}" th:id="'menuItem_' + ${item.id}"
+                     class="menu-item inactive">
+                    <img th:src="@{${item.imageURL}}" alt="image"
+                         style="width: 48px; height: 48px; border: 1px solid #cccccc"/>
+                    <div style="margin-left: 10px;">
+                        <div><span class="menu-item-big-text" th:text="${item.name}"></span></div>
+                        <div><span class="menu-item-small-text" th:text="${item.description}"></span></div>
+                    </div>
+                    <div style="margin-left: auto; text-align: right;">
+                        <div th:text="'Цена: ' + ${item.price}"></div>
+                        <div th:text="'Спец. цена: ' + ${item.specialPrice}"></div>
+                    </div>
+                    <div>
+                        <a class="imgButton" th:href="@{restore/{id}(id=${item.id})}"
+                           title="Восстановить из архива">
+                            <img class="imgButton" th:src="@{/img/goback.png}" style="margin-left: 1px;">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

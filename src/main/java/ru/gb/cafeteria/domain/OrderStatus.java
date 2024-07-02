@@ -14,5 +14,5 @@ public class OrderStatus {
     private Long orderStatusId;
 
     @Column(name = "status_name", nullable = false, unique = true)
-    private String status_name;
+    private String statusName;
 }

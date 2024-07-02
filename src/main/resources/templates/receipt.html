@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Order Summary</title>
+    <style>
+        .selected-items {
+            margin-bottom: 20px;
+        }
+        .bonus-card-search {
+            margin-top: 20px;
+        }
+        .bonus-card-search input {
+            margin-right: 10px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 30%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<h1>КАССОВЫЙ ЧЕК № <span th:text="${receipt.receiptId}"></span></h1>
+<table>
+    <thead>
+    <tr>
+        <th>Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${receipt.orderList}">
+        <td th:text="${item.menuItem.name}">name</td>
+        <td th:text="${item.quantity}">quantity</td>
+        <td th:text="${item.price}">price</td>
+        <td th:text="${item.sum}">total</td>
+    </tr>
+    </tbody>
+</table>
+<div>
+    <p>ВСЕГО:
+        <span th:text="${receipt.totalSum}"></span>
+    </p>
+</div>
+<div>
+    <p>ВСЕГО:
+        <span th:text="${receipt.totalSum}"></span>
+    </p>
+</div>
+
+<div id="receiptId" th:text="${receipt.receiptId}" style="display: none;"></div>
+<div>
+    <button onclick="submitReceipt()">ПРИНЯТЬ ОПЛАТУ</button>
+    <a th:href="@{/receipt-submit/{id}(id=${receipt.receiptId})}" title="CONFIRM">ПРИНЯТЬ ОПЛАТУ</a>
+    <button onclick="confirmCancel()">ОТМЕНИТЬ</button>
+</div>
+
+<!-- Modal -->
+<div id="confirmModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <p>ВЫ УВЕРЕНЫ?</p>
+        <button id="confirmCancelYes">ДА</button>
+        <button onclick="closeModal()">НЕТ</button>
+    </div>
+</div>
+
+<script>
+    function getReceiptId() {
+        return document.getElementById("receiptId").textContent.trim();
+    }
+
+    function submitReceipt() {
+        const receiptId = getReceiptId();
+        fetch(`/receipt-submit/${receiptId}`, {
+            method: 'POST'
+        }).then(response => {
+            if (!response.ok) {
+                console.error("Failed to submit receipt.");
+            } else {
+                window.location.href = "/menu";
+            }
+        }).catch(error => console.error('Error:', error));
+    }
+
+    function confirmCancel() {
+        document.getElementById("confirmModal").style.display = "block";
+        document.getElementById("confirmCancelYes").onclick = function() {
+            cancelReceipt();
+        };
+    }
+
+    function closeModal() {
+        document.getElementById("confirmModal").style.display = "none";
+    }
+
+    function cancelReceipt() {
+        const receiptId = getReceiptId();
+        fetch(`/receipt-cancel/${receiptId}`, {
+            method: 'POST'
+        }).then(response => {
+            if (!response.ok) {
+                console.error("Failed to cancel receipt.");
+            } else {
+                window.location.href = "/menu";
+            }
+        }).catch(error => console.error('Error:', error));
+    }
+</script>
+
+</body>
+</html>

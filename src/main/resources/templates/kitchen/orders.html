@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Kitchen Orders</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <meta http-equiv="refresh" content="3"> <!-- Автообновление страницы каждые 2 секунды -->
+</head>
+<body>
+<h1>Orders in Progress</h1>
+<button onclick="location.reload()">ОБНОВИТЬ</button>
+<br>
+<div th:each="order : ${orderList}" class="order-card">
+    <div>
+        <p><strong>Order ID:</strong> <span th:text="${order.orderId}">1</span></p>
+        <p><strong>Menu Item:</strong> <span th:text="${order.menuItem.name}">Item Name</span></p>
+        <p><strong>Quantity:</strong> <span th:text="${order.quantity}">1</span></p>
+    </div>
+    <form th:action="@{/kitchen/order}" method="post">
+        <input type="hidden" name="orderId" th:value="${order.orderId}" />
+        <input type="hidden" name="status" value="ready" />
+        <button type="submit">ВЫПОЛНЕНО</button>
+    </form>
+    <form th:action="@{/kitchen/order}" method="post">
+        <input type="hidden" name="orderId" th:value="${order.orderId}" />
+        <input type="hidden" name="status" value="cancel" />
+        <button type="submit">ОТМЕНИТЬ</button>
+    </form>
+</div>
+
+</body>
+</html>

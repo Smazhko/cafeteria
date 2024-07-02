@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <title>Добавление нового блюда</title>
+</head>
+<body>
+
+<h2 class="text-center my-4">Меню: добавление нового блюда</h2>
+
+<!--    xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+<div th:fragment="form-add-new-menuItem" class="container">
+    <form th:action="@{/manager/menu/add}" method="post" th:object="${newItem}" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-md-8">
+                <input type="hidden" th:field="*{id}"/>
+                <div class="form-group row">
+                    <label for="name" class="col-sm-3 col-form-label">Наименование:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="name" name="name" th:field="*{name}"
+                               required placeholder="Наименование">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="description" class="col-sm-3 col-form-label">Описание:</label>
+                    <div class="col-sm-9">
+                        <textarea class="form-control" id="description" name="description" rows="4"
+                                  th:field="*{description}" placeholder="Описание блюда"></textarea>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="foodGroup" class="col-sm-3 col-form-label">Группа в меню:</label>
+                    <div class="col-sm-9">
+                        <select class="form-control" id="foodGroup" name="foodGroup" required
+                                th:field="*{foodGroup.groupId}">
+                            <option th:each="group : ${foodGroups}" th:value="${group.groupId}" th:text="${group.name}"
+                                    th:selected="${group.groupId} == ${newItem.foodGroup.groupId}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="price" class="col-sm-3 col-form-label">Цена:</label>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="price" name="price" required
+                               th:field="*{price}" step="1.00" min="0" value="0.00"
+                               oninput="validateDecimalInput(event)">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="specialPrice" class="col-sm-3 col-form-label">Специальная цена:</label>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="specialPrice" name="specialPrice"
+                               th:field="*{specialPrice}" step="1.00" min="0" value="0.00"
+                               oninput="validateDecimalInput(event)">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="active" class="col-sm-3 col-form-label">Показывать в меню:</label>
+                    <div class="col-sm-9">
+                        <input class="custom-checkbox" type="checkbox" id="active" name="active" th:field="*{active}">
+                    </div>
+                </div>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <img id="imagePreview" class="img-fluid" th:src="@{/img/food/default.png}"
+                     style="max-width: 100%;">
+                <label for="image" class="btn btn-secondary mt-2 custom-file-upload d-block">Выбрать файл</label>
+                <input type="file" id="image" name="image" class="file-input" accept=".jpg,.jpeg,.png,.svg"
+                       onchange="previewImage(event)">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 text-center mt-3">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a class="btn btn-secondary" th:href="@{/manager/menu}">Отмена</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('imagePreview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>
+
+</body>
+</html>

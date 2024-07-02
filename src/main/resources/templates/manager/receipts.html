@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:thymol="http://www.thymeleaf.org/thymeleaf-extras-java8time">
+<head>
+    <meta charset="UTF-8">
+    <title>Финансы: обзор</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .center-content {
+            display: flex;
+            justify-content: center;
+        }
+        .content-wrapper {
+            width: 100%;
+            max-width: 900px;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-2">
+    <h2 class="text-center mb-4"><a th:href="@{/manager/menu}">Меню</a> Финансы <a th:href="@{/manager/staff}">Персонал</a></h2>
+    <form th:action="@{/manager/receipts}" method="get" class="form-inline mb-4">
+        <div class="form-group mr-2">
+            <label for="startDate" class="mr-2">Начало</label>
+            <input type="date" id="startDate" name="startDate" class="form-control" th:value="${startDate}">
+        </div>
+        <div class="form-group mr-2">
+            <label for="endDate" class="mr-2">Конец</label>
+            <input type="date" id="endDate" name="endDate" class="form-control" th:value="${endDate}">
+        </div>
+        <div class="form-group mr-2">
+            <label for="status" class="mr-2">Статус</label>
+            <select id="status" name="statusId" class="form-control">
+                <option th:value="0" th:text="'ВСЕ'" th:selected="${selectedStatus == null}">ВСЕ</option>
+                <option th:each="status : ${statuses}" th:value="${status.receiptStatusId}"
+                        th:text="${status.statusName}"
+                        th:selected="${selectedStatus != null and selectedStatus == status.receiptStatusId}"></option>
+            </select>
+        </div>
+        <a th:href="@{/manager/receipts}"
+           onclick="document.getElementById('startDate').value='';document.getElementById('endDate').value='';document.getElementById('status').selectedIndex=0;"
+           class="btn btn-secondary">СБРОСИТЬ</a> &nbsp&nbsp
+        <button type="submit" class="btn btn-primary mr-2">ПОИСК</button>
+    </form>
+    <table class="table table-striped table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Открыт</th>
+            <th>Закрыт</th>
+            <th>Статус</th>
+            <th>Сумма</th>
+            <th>Скидка</th>
+            <th>ИТОГ</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="receipt : ${receipts}">
+            <td th:text="${receipt.receiptId}"></td>
+            <td th:text="${#temporals.format(receipt.openTime, 'dd.MM.yyyy HH:mm:ss')}"></td>
+            <td th:text="${#temporals.format(receipt.closeTime, 'dd.MM.yyyy HH:mm:ss')}"></td>
+            <td th:text="${receipt.receiptStatus.statusName}"></td>
+            <td th:text="${receipt.totalSum}"></td>
+            <td th:text="${receipt.discountSum}"></td>
+            <td th:text="${receipt.finalSum}"></td>
+            <td>
+                <form th:action="@{/manager/receipts/delete}" method="post">
+                    <input type="hidden" name="id" th:value="${receipt.receiptId}">
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="4" class="text-right"><strong>Итог:</strong></td>
+            <td th:text="${totalSum}"></td>
+            <td th:text="${discountSum}"></td>
+            <td th:text="${finalSum}"></td>
+            <td></td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+</body>
+</html>

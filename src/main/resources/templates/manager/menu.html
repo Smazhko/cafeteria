@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование блюд</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container mt-2">
+    <h2 class="text-center mb-4">Меню  <a th:href="@{/manager/receipts}">Финансы</a>  <a th:href="@{/manager/staff}">Персонал</a></h2>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-75">
+
+            <!-- Группы меню -->
+<!--            <a href="/manager/food-groups" class="btn btn-info mb-2">Группы меню</a>-->
+
+            <!-- ПОИСК -->
+            <form th:fragment="searchLine" method="GET" action="/manager/menu/search" class="form-inline mb-2">
+                <label for="search" class="mr-2">ПОИСК:</label>
+                <input type="text" id="search" name="search" th:value="${search}" oninput="checkSearchInput()"
+                       class="form-control mr-2" style="width: 400px;"/>
+                <button type="submit" id="search-button" class="btn btn-primary btn-sm" disabled>НАЙТИ</button>
+                <button type="button" onclick="window.location.href='/manager/menu/reset-search'"
+                        class="btn btn-secondary btn-sm ml-2">СБРОСИТЬ
+                </button>
+            </form>
+
+            <div style="display: flex; flex-direction: row; align-items: stretch; gap: 12px;">
+                <!-- карточка ДОБАВИТЬ -->
+                <div th:fragment="addNewItem" style="width: 33%;">
+                    <a th:href="@{/manager/menu/add}" class="menu-item-big-text">
+                        <div class="menu-item active">
+                            <img th:src="@{/img/food/add-new-dish.png}" alt="image"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Добавить блюдо</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- карточка ГРУППЫ  -->
+                <div th:fragment="watchArchive" style="width: 33%;">
+                    <a th:href="@{/manager/food-groups}" class="menu-item-big-text">
+                        <div class="menu-item inactive">
+                            <img th:src="@{/img/food/menu-group.png}" alt="image"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Группы меню</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- карточка АРХИВ  -->
+                <div th:fragment="watchArchive" style="width: 33%;">
+                    <a th:href="@{/manager/menu/archive}" class="menu-item-big-text">
+                        <div class="menu-item inactive">
+                            <img th:src="@{/img/food/deleted.png}" alt="image"
+                                 style="margin-right: 8px; width: 60px; height: 60px; border: 1px solid #cccccc"/>
+                            <div>
+                                <span>Архив</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+
+
+            <!-- блок при отсутствии результатов поиска -->
+            <div th:fragment="searchIsEmpty" th:if="${searchIsEmpty}" class="alert alert-danger">
+                <p th:text="'По Вашему запросу \'' + ${search} + '\' ничего не найдено.'"></p>
+            </div>
+
+
+            <!-- карточка обычного пункта меню -->
+            <div th:fragment="menuItemsList" th:each="entry : ${groupedMenuItems}">
+                <h3 th:text="${entry.key}">group name</h3>
+                <div th:each="item : ${entry.value}" th:id="'menuItem_' + ${item.id}"
+                     th:class="${item.active} ? 'menu-item active' : 'menu-item inactive'">
+                    <img th:src="@{${item.imageURL}}" alt="image"
+                         style="width: 48px; height: 48px; border: 1px solid #cccccc"/>
+                    <div style="margin-left: 10px;">
+                        <div><span class="menu-item-big-text" th:text="${item.name}"></span></div>
+                        <div><span class="menu-item-small-text" th:text="${item.description}"></span></div>
+                    </div>
+                    <div style="margin-left: auto; text-align: right;">
+                        <div th:text="'Цена: ' + ${item.price}"></div>
+                        <div th:text="'Спец. цена: ' + ${item.specialPrice}"></div>
+                    </div>
+                    <div style="padding-top: 6px;">
+                        <input type="checkbox" th:id="'activeCheckbox_' + ${item.id}"
+                               th:checked="${item.active}" class="custom-checkbox"
+                               th:onclick="'toggleActive(' + ${item.id} + ')'">
+                    </div>
+                    <div>
+                        <a class="imgButton" th:href="@{menu/update/{id}(id=${item.id})}" title="Редактировать блюдо">
+                            <img class="imgButton" th:src="@{/img/edit.png}">
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    window.onload = function() {
+        const searchInput = document.getElementById('search');
+        searchInput.focus();
+        searchInput.select();
+    }
+
+    function checkSearchInput() {
+        const searchInput = document.getElementById('search').value.trim();
+        const searchButton = document.getElementById('search-button');
+        searchButton.disabled = searchInput.length < 3;
+    }
+
+    function toggleActive(itemId) {
+        const checkbox = document.getElementById(`activeCheckbox_${itemId}`);
+        const isActive = checkbox.checked;
+        console.log("Item ID:", itemId); // Вывод ID элемента
+        console.log("Is Active:", isActive); // Вывод текущего состояния активности
+
+        fetch(`/manager/menu/toggle-active/${itemId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ active: isActive })
+        }).then(response => {
+            if (response.ok) {
+                const itemDiv = document.getElementById(`menuItem_${itemId}`);
+                console.log("Response OK for Item ID:", itemId); // Подтверждение успешного ответа
+                if (isActive) {
+                    itemDiv.classList.add('active');
+                    itemDiv.classList.remove('inactive');
+                } else {
+                    itemDiv.classList.add('inactive');
+                    itemDiv.classList.remove('active');
+                }
+            } else {
+                console.log("Response NOT OK for Item ID:", itemId); // Подтверждение ошибки ответа
+            }
+        }).catch(error => {
+            console.error("Error occurred for Item ID:", itemId, error); // Вывод ошибки
+        });
+    }
+</script>
+</body>
+</html>

@@ -6,4 +6,7 @@ import ru.gb.cafeteria.domain.FoodGroup;
 
 @Repository
 public interface FoodGroupRepository extends JpaRepository<FoodGroup, Long> {
+    FoodGroup findByPosition(Integer position);
+
+    boolean existsByName(String name);
 }

@@ -19,13 +19,13 @@ public class CustomErrorController implements ErrorController {
             Integer statusCode = Integer.valueOf(status.toString());
 
             if (statusCode == 404) {
-                return "error-404";
+                return "error/error-404";
             } else if (statusCode == 403) {
-                return "error-403";
+                return "error/error-403";
             } else if (statusCode == 500) {
-                return "error-500";
+                return "error/error-500";
             }
         }
-        return "error";
+        return "error/error";
     }
 }
