@@ -1,4 +1,4 @@
-package ru.gb.cafeteria.controllers;
+package ru.gb.cafeteria.exceptions;
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;

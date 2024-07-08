@@ -1,4 +1,4 @@
-package ru.gb.cafeteria.bonusSystem.domain;
+package ru.gb.cafeteria.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;

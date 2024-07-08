@@ -1,4 +1,4 @@
-package ru.gb.cafeteria.controllers;
+package ru.gb.cafeteria.exceptions;
 
 import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.stereotype.Controller;

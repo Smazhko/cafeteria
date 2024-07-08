@@ -1,12 +1,10 @@
-package ru.gb.cafeteria.bonusSystem.domain;
+package ru.gb.cafeteria.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "bonus_cards")

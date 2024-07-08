@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import ru.gb.cafeteria.bonusSystem.domain.BonusCard;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

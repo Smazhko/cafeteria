@@ -1,10 +1,10 @@
-package ru.gb.cafeteria.bonusSystem.repository;
+package ru.gb.cafeteria.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.gb.cafeteria.bonusSystem.domain.BonusCard;
+import ru.gb.cafeteria.domain.BonusCard;
 
 import java.util.List;
 

@@ -1,13 +1,13 @@
-package ru.gb.cafeteria.bonusSystem.services;
+package ru.gb.cafeteria.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.gb.cafeteria.bonusSystem.domain.BonusCard;
-import ru.gb.cafeteria.bonusSystem.domain.DiscountType;
+import ru.gb.cafeteria.domain.BonusCard;
+import ru.gb.cafeteria.domain.DiscountType;
 import ru.gb.cafeteria.exceptions.DuplicatePhoneException;
-import ru.gb.cafeteria.bonusSystem.repository.BonusCardRepository;
-import ru.gb.cafeteria.bonusSystem.repository.DiscountRepository;
+import ru.gb.cafeteria.repository.BonusCardRepository;
+import ru.gb.cafeteria.repository.DiscountRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
