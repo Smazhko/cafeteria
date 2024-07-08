@@ -1,7 +1,8 @@
 package ru.gb.cafeteria.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import ru.gb.cafeteria.security.domain.User;
 
 import java.math.BigDecimal;
@@ -19,6 +20,8 @@ public class Staff {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private User user;
 
     @Column(nullable = false)
@@ -41,15 +44,15 @@ public class Staff {
 
     @Override
     public String toString() {
-        return "Staff{" +
-                "staffId=" + staffId +
-                ", name='" + name + '\'' +
-                ", post='" + post + '\'' +
-                ", phone='" + phone + '\'' +
-                ", dateBegin=" + dateBegin +
-                ", dateEnd=" + dateEnd +
-                ", salary=" + salary +
-                //", user=" + user.getUsername() + // Avoid calling user.toString()
-                '}';
+        return new ToStringBuilder(this)
+                .append("staffId", staffId)
+                .append("user", user.getUsername())
+                .append("name", name)
+                .append("post", post)
+                .append("phone", phone)
+                .append("dateBegin", dateBegin)
+                .append("dateEnd", dateEnd)
+                .append("salary", salary)
+                .toString();
     }
 }

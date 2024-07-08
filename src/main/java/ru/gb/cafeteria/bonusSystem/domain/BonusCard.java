@@ -2,6 +2,7 @@ package ru.gb.cafeteria.bonusSystem.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.ToString;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,15 +32,9 @@ public class BonusCard {
 
     @ManyToOne
     @JoinColumn(name = "discount_id", nullable = false)
-    private Discount discount;
+    private DiscountType discountType;
 
     @Column(name = "total_sum", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalSum = BigDecimal.ZERO;
-
-    @Column(name = "bonus_sum", nullable = false, precision = 10, scale = 2)
-    private BigDecimal bonusSum = BigDecimal.ZERO;
-
-    @OneToMany(mappedBy = "bonusCard", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BonusTransaction> transactions;
 
 }

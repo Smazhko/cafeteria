@@ -18,6 +18,9 @@
     </style>
 </head>
 <body>
+
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
 <div class="container mt-2">
     <h2 class="text-center mb-4"><a th:href="@{/manager/menu}">Меню</a> Финансы <a th:href="@{/manager/staff}">Персонал</a></h2>
     <form th:action="@{/manager/receipts}" method="get" class="form-inline mb-4">

@@ -1,0 +1,25 @@
+<!-- fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+</head>
+<body>
+<div th:fragment="header-bar">
+    <div class="header-bar">
+        <div class="container header-container">
+            <div class="logo">
+                <img th:src="@{/img/logo.png}" alt="Company Logo">
+                <span>GRAФ КУТУЗОFF</span>
+            </div>
+            <div class="user-info">
+                <p></p>
+                <p><span th:text="${#authentication.principal.staff.name}"></span> (<span
+                        th:text="${#authentication.principal.staff.post}"></span>)</p>
+                <a href="/logout" class="text-white">выйти</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

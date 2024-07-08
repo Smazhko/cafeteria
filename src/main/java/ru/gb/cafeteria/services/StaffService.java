@@ -76,6 +76,11 @@ public class StaffService {
         return staffRepo.findById(id).orElseThrow();
     }
 
+    public Staff findStaffByUsername(String username) {
+        User user = userRepo.findByUsername(username).orElseThrow();
+        return staffRepo.findByUser(user).orElseThrow();
+    }
+
     public Role getRoleById(Long id) {
         return roleRepo.findById(id).orElseThrow();
     }

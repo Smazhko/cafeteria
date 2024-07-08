@@ -23,7 +23,7 @@ public class KitchenController {
 
     @GetMapping
     public String getOrders(Model model) {
-        OrderStatus inProgressStatus = orderService.getOrderStatusById(2L);
+        OrderStatus inProgressStatus = orderService.getOrderStatusByName("IN PROGRESS");
         List<Order> orderList = orderService.getOrdersByStatus(inProgressStatus);
         orderList.stream()
                 .map(order -> order.getMenuItem().getName())

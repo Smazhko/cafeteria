@@ -2,6 +2,9 @@ package ru.gb.cafeteria.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.math.BigDecimal;
 
@@ -38,6 +41,22 @@ public class Order {
 
     @ManyToOne
     @JoinColumn(name = "staff_id")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Staff chef;
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("orderId", orderId)
+                .append("menuItem", menuItem.getName())
+                .append("price", price)
+                .append("quantity", quantity)
+                .append("sum", sum)
+                .append("orderStatus", orderStatus)
+                .append("receipt", receipt.getReceiptId())
+                .append("chef", chef.getName())
+                .toString();
+    }
 }
 

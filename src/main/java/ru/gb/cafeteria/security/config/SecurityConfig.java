@@ -38,10 +38,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->
                         authorizeRequests
                                 .requestMatchers("/css/**", "/favicon.ico", "/img/**", "/", "/login").permitAll()
-                                .requestMatchers("/admin", "/product", "/product_edit").hasAnyRole("ADMIN")
+                                .requestMatchers("/admin").hasAnyRole("ADMIN")
                                 .requestMatchers("/manager").hasAnyRole("MANAGER")
                                 .requestMatchers("/kitchen").hasAnyRole("CHEF")
-                                .requestMatchers("/menu").hasAnyRole("CASHIER")
+                                .requestMatchers("/cashier").hasAnyRole("CASHIER")
                                 .anyRequest().authenticated()
                 )
                 .formLogin(formLogin -> formLogin

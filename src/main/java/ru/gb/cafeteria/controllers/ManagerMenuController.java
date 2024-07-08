@@ -39,7 +39,7 @@ public class ManagerMenuController {
         // повторно проводим проверку на длину строки
         List<MenuItem> searchResult;
         Boolean searchIsEmpty;
-        if (search.trim().length() > 2) {
+        if (search.trim().length() > 1) {
             searchResult = menuService.searchNonArchivedMenuItems(search);  // searchMenuItems(searchLine);
             model.addAttribute("searchIsEmpty", searchResult.isEmpty());
             if (searchResult.isEmpty())

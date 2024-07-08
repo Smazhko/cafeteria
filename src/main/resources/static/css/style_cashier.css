@@ -1,0 +1,105 @@
+        .menu-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            width: calc(50% - 10px); /* Две карточки на строку с промежутком */
+            margin-right: 10px;
+        }
+        .menu-item img {
+            width: 80px;
+            height: 80px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        .menu-item-details {
+            flex-grow: 1;
+        }
+        .menu-item-prices {
+            text-align: right;
+        }
+        .menu-item .quantity-wrapper {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+        .menu-item .quantity-button {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #eee;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+        .menu-item .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 0 10px;
+        }
+        .group-links {
+            display: flex;
+            overflow-x: auto;
+            margin-bottom: 15px;
+        }
+        .group-link-button {
+            flex: 0 0 auto;
+            margin-right: 10px;
+        }
+        .menu-items-container {
+            max-height: 70vh; /* Высота блока относительно высоты окна */
+            overflow-y: auto; /* Включение вертикальной прокрутки */
+            border: 1px solid #ccc; /* Граница для визуального разделения */
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .group {
+            display: flex;
+            flex-wrap: wrap; /* Позволяет карточкам переноситься на новую строку */
+        }
+        .group .menu-item:nth-child(2n) {
+            margin-right: 0; /* Убираем отступ справа для четных элементов */
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            min-width: 50vw;
+            max-width: 70vw;
+        }
+        .receipt{
+            justify-content: center;
+        }
+        .menu-section, .order-section, .bonus-section {
+            flex: 1;
+            margin: 10px;
+            min-width: 40vw;
+        }
+        .order-section {
+            min-width: 15vw;
+            max-width: 25vw;
+        }
+        .bonus-section {
+           min-width: 25vw;
+           max-width: 35vw;
+           margin-right: 36px;
+        }
+        .order-table {
+            width: 100%;
+        }
+        .order-table td, .order-table th {
+            padding: 8px;
+            text-align: left;
+        }
+        .order-table tfoot {
+            border-top: 2px solid #000;
+        }
+        .btn-receipt{
+            width: 180px;
+        }

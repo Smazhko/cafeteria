@@ -68,6 +68,9 @@
     </script>
 </head>
 <body>
+
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
 <form>
     <label for="phone">Phone Number:</label>
     <input type="text" id="phone" name="phone" onblur="checkPhoneNumberExists(this.value)">

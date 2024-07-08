@@ -9,12 +9,14 @@ import ru.gb.cafeteria.repository.FoodGroupRepository;
 import ru.gb.cafeteria.repository.MenuItemRepository;
 import ru.gb.cafeteria.repository.OrderRepository;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +41,11 @@ public class MenuService {
         return menuRepo.findAllByArchivedFalse().stream()
                 .filter(MenuItem::getActive)
                 .collect(Collectors.toList());
+    }
+
+    public Boolean isMenuItemActiveById(Long id) {
+        MenuItem item = menuRepo.findById(id).orElseThrow();
+        return item.getActive();
     }
 
 

@@ -3,6 +3,7 @@ package ru.gb.cafeteria.security.config;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.gb.cafeteria.domain.Staff;
 import ru.gb.cafeteria.security.domain.User;
 
 import java.util.Collection;
@@ -20,6 +21,8 @@ public class MyUserDetails implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(user.getRole().getName()));
     }
+
+    public Staff getStaff() { return user.getStaff(); }
 
     @Override
     public String getPassword() { return user.getPassword(); }

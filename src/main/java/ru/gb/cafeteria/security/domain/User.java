@@ -1,7 +1,8 @@
 package ru.gb.cafeteria.security.domain;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.springframework.security.core.userdetails.UserDetails;
 import ru.gb.cafeteria.domain.Staff;
 
@@ -30,8 +31,21 @@ public class User  {
     private Boolean enabled;
 
     @OneToOne(mappedBy = "user")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Staff staff;
 
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+                .append("id:", id)
+                .append(", username:", username)
+                .append(", password:", password)
+                .append(", role:", role)
+                .append(", enabled:", enabled)
+                .append(", staff", staff.getName())
+                .toString();
+    }
 }
 //    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 //    private Set<Authority> authorities;

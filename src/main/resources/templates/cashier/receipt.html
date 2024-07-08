@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Чек</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style_cashier.css}">
+    <style>
+        .dropdown-menu {
+            position: absolute;
+            width: 250px; /* ширина, совпадающая с шириной строки поиска */
+            z-index: 1000; /* чтобы выпадающий список был выше других элементов */
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
+<div class="container mt-4 receipt">
+
+    <div class="bonus-section">
+        <!-- ПОИСК -->
+        <form th:fragment="searchLine" method="GET" action="/cashier/receipt/search" class="form-inline mb-2" onsubmit="return false;">
+            <label for="search" class="mr-2">ПОИСК:</label>
+            <div class="position-relative">
+                <input type="text" id="search" name="search" th:value="${bonusSearch}" oninput="checkSearchInput()" onkeydown="return handleKeyDown(event)"
+                       class="form-control mr-2" style="width: 250px;"/>
+                <!-- Выпадающий список результатов поиска -->
+                <div id="search-results" class="dropdown-menu" style="display: none;">
+                    <a class="dropdown-item" th:each="card : ${bonusCards}" th:onclick="'fillSearch(\'' + ${card.clientPhone} + '\')'"
+                       th:text="${card.clientPhone + ' (' + card.clientName + ')'}"></a>
+                </div>
+            </div>
+            <button type="button" onclick="window.location.href='/cashier/receipt/reset-search'"
+                    class="btn btn-secondary btn-sm ml-2">СБРОСИТЬ
+            </button>
+            <button type="button" onclick="showCreateForm()" class="btn btn-success btn-sm ml-2">СОЗДАТЬ</button>
+        </form>
+
+        <!-- Информация о найденной бонусной карте -->
+        <div id="bonus-card-info" th:if="${!searchIsEmpty}" class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Информация о бонусной карте</h5>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <th scope="row">Карта:</th>
+                        <td><span th:text="${bonusCard.discountType.discountName}">...</span>
+                            (<span th:text="${bonusCard.discountType.discountPercent + '%'}" style="color:red; font-weight:bold;">...</span>)
+                        </td>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <th scope="row">Описание:</th>
+                        <td><span th:text="${bonusCard.discountType.description}">...</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Сумма:</th>
+                        <td><span th:text="${bonusCard.totalSum}">0.00</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Телефон:</th>
+                        <td><span th:text="${bonusCard.clientPhone}">...</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Имя:</th>
+                        <td><span th:text="${bonusCard.clientName}">...</span></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Email:</th>
+                        <td><span th:text="${bonusCard.clientEmail}">...</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <form th:action="@{/cashier/receipt/apply-discount}" method="post" class="mt-2">
+                    <input type="hidden" name="receiptId" th:value="${receipt.receiptId}">
+                    <input type="hidden" name="cardId" th:value="${bonusCard.cardId}">
+                    <button type="submit" class="btn btn-success btn-block">ПРИМЕНИТЬ СКИДКУ</button>
+                </form>
+            </div>
+        </div>
+
+
+
+        <!-- Форма создания новой бонусной карты -->
+        <div id="create-bonus-card" style="display: none;">
+            <h5>Создание новой бонусной карты</h5>
+            <form th:action="@{/cashier/receipt/create-card}" method="post">
+                <input type="hidden" name="receiptId" th:value="${receipt.receiptId}">
+                <div class="form-group row">
+                    <label for="clientPhone" class="col-sm-2 col-form-label">Телефон:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="clientPhone" name="clientPhone" th:value="${bonusSearch}" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="clientName" class="col-sm-2 col-form-label">Имя:</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="clientName" name="clientName" required>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="clientEmail" class="col-sm-2 col-form-label">Email:</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" id="clientEmail" name="clientEmail">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Создать и применить</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="order-section">
+        <h3>ЧЕК</h3>
+        <table class="order-table">
+            <tbody id="receipt">
+            <!-- Здесь будут отображаться выбранные пункты меню -->
+            <tr th:each="item : ${receipt.orderList}">
+                <td style="text-align: left;" th:text="${item.menuItem.name}">name</td>
+                <td style="text-align: left;" th:text="${item.price}">PRICE</td>
+                <td style="text-align: left;" th:text="'×' + ${item.quantity}">quantity</td>
+                <td style="text-align: left;" th:text="${item.sum}">total</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="3">Общая стоимость:</td>
+                <td th:text="${receipt.totalSum}">0.00</td>
+            </tr>
+            <tr>
+                <td colspan="3">Скидка:</td>
+                <td th:text="${receipt.discountSum}">0.00</td>
+            </tr>
+            <tr>
+                <td colspan="3">Итоговая сумма:</td>
+                <td th:text="${receipt.finalSum}">0.00</td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-2 d-flex flex-column align-items-center">
+            <div class="d-flex mb-2">
+                <form th:action="@{/cashier/receipt/cancel/{receiptId}(receiptId=${receipt.receiptId})}" method="post" class="mr-2">
+                    <button type="submit" class="btn-receipt btn btn-danger">ОТМЕНА</button>
+                </form>
+                <form th:action="@{/cashier/receipt/edit/{receiptId}(receiptId=${receipt.receiptId})}" method="post">
+                    <button type="submit" class="btn-receipt btn btn-primary">ИЗМЕНИТЬ</button>
+                </form>
+            </div>
+            <form th:action="@{'/cashier/receipt/pay/' + ${receipt.receiptId}}" method="post" style="width:90%;">
+                <input type="hidden" name="cardId" th:value="${bonusCard != null ? bonusCard.cardId : ''}">
+                <button type="submit" class="btn btn-success btn-block">ОПЛАТИТЬ</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function checkSearchInput() {
+        const searchInput = document.getElementById('search').value.trim();
+
+        if (searchInput.length >= 2) {
+            $.ajax({
+                url: '/cashier/receipt/search',
+                type: 'GET',
+                data: { search: searchInput },
+                success: function(response) {
+                    const resultsDiv = document.getElementById('search-results');
+                    resultsDiv.innerHTML = '';
+                    if (response.length > 0) {
+                        response.forEach(card => {
+                            const a = document.createElement('a');
+                            a.className = 'dropdown-item';
+                            a.href = '/cashier/receipt?cardId=' + card.cardId;
+                            a.innerHTML = highlightMatch(card.clientPhone + ' (' + card.clientName + ')', searchInput);
+                            resultsDiv.appendChild(a);
+                        });
+                        resultsDiv.style.display = 'block';
+                    } else {
+                        resultsDiv.style.display = 'none';
+                    }
+                },
+                error: function(error) {
+                    console.log('search error', error);
+                }
+            });
+        } else {
+            document.getElementById('search-results').style.display = 'none';
+        }
+    }
+
+    function highlightMatch(text, search) {
+        const index = text.toLowerCase().indexOf(search.toLowerCase());
+        if (index >= 0) {
+            return text.substring(0, index) + '<span style="color:red;">' + text.substring(index, index + search.length) + '</span>' + text.substring(index + search.length);
+        }
+        return text;
+    }
+
+    function fillSearch(phone) {
+        document.getElementById('search').value = phone;
+        document.getElementById('search-results').style.display = 'none';
+        document.getElementById('bonus-card-info').style.display = 'block';
+    }
+
+    function showCreateForm() {
+        const searchInput = document.getElementById('search').value.trim();
+        document.getElementById('clientPhone').value = searchInput;
+        document.getElementById('create-bonus-card').style.display = 'block';
+    }
+
+    function handleKeyDown(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            checkSearchInput();
+        }
+    }
+</script>
+</body>
+</html>

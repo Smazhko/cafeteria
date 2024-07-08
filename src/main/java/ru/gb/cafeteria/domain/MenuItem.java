@@ -27,7 +27,7 @@ public class MenuItem {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(name = "special_price", precision = 10, scale = 2)
+    @Column(name = "special_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal specialPrice;
 
     @Column(name = "image")

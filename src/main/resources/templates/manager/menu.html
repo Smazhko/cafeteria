@@ -8,6 +8,8 @@
 </head>
 <body>
 
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
 <div class="container mt-2">
     <h2 class="text-center mb-4">Меню  <a th:href="@{/manager/receipts}">Финансы</a>  <a th:href="@{/manager/staff}">Персонал</a></h2>
 
@@ -121,7 +123,7 @@
     function checkSearchInput() {
         const searchInput = document.getElementById('search').value.trim();
         const searchButton = document.getElementById('search-button');
-        searchButton.disabled = searchInput.length < 3;
+        searchButton.disabled = searchInput.length < 2;
     }
 
     function toggleActive(itemId) {

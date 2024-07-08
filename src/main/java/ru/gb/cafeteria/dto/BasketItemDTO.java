@@ -5,11 +5,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.gb.cafeteria.domain.MenuItem;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MenuItemList {
-    private List<MenuItem> itemList;
+public class BasketItemDTO {
+    private MenuItem menuItem;
+    private int quantity;
 }

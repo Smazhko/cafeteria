@@ -6,12 +6,36 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        body {
+            position: relative;
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .background-image {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/img/logo1.png') no-repeat center center;
+            background-size: contain;
+            opacity: 0.15; /* Устанавливает прозрачность */
+            z-index: -1; /* Отправляет изображение на задний план */
+        }
+
         .login-card {
             border: 1px solid indigo;
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            padding: 2px;
-            width: 350px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 400px;
+            background-color: white; /* Для лучшей читаемости */
+            position: relative;
+            z-index: 1; /* Помещает карточку поверх фона */
         }
     </style>
 
@@ -20,50 +44,45 @@
             const searchInput = document.getElementById('username');
             searchInput.focus();
         }
-    </script>>
+    </script>
 </head>
 <body>
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card login-card">
-                <div class="card-body">
-                    <h2 class="card-title text-center">Login</h2>
-                    <form th:action="@{/login}" method="post">
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-md-4 text-right">
-                                <label for="username" class="col-form-label">Username:</label>
-                            </div>
-                            <div class="form-group col-md-8">
-                                <input type="text" class="form-control" id="username" name="username" required>
-                            </div>
-                        </div>
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-md-4 text-right">
-                                <label for="password" class="col-form-label">Password:</label>
-                            </div>
-                            <div class="form-group col-md-8">
-                                <input type="password" class="form-control" id="password" name="password" required>
-                            </div>
-                        </div>
-                        <div class="form-row align-items-center">
-                            <div class="form-group col-md-4">
-                                <!-- Пустое место для выравнивания кнопки -->
-                            </div>
-                            <div class="form-group col-md-8 text-right">
-                                <button type="submit" class="btn btn-primary">Login</button>
-                            </div>
-                        </div>
-                        <div th:if="${param.error}" class="form-group text-center">
-                            <p class="text-danger">Invalid username or password.</p>
-                        </div>
-                        <div th:if="${param.logout}" class="form-group text-center">
-                            <p class="text-success">You have been logged out.</p>
-                        </div>
-                    </form>
+<div class="background-image"></div>
+<div class="login-card">
+    <div class="card-body">
+        <h2 class="card-title text-center">Login</h2>
+        <form th:action="@{/login}" method="post">
+            <div class="form-row align-items-center">
+                <div class="form-group col-md-4 text-right">
+                    <label for="username" class="col-form-label">Username:</label>
+                </div>
+                <div class="form-group col-md-8">
+                    <input type="text" class="form-control" id="username" name="username" required>
                 </div>
             </div>
-        </div>
+            <div class="form-row align-items-center">
+                <div class="form-group col-md-4 text-right">
+                    <label for="password" class="col-form-label">Password:</label>
+                </div>
+                <div class="form-group col-md-8">
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+            </div>
+            <div class="form-row align-items-center">
+                <div class="form-group col-md-4">
+                    <!-- Пустое место для выравнивания кнопки -->
+                </div>
+                <div class="form-group col-md-8 text-right">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </div>
+            <div th:if="${param.error}" class="form-group text-center">
+                <p class="text-danger">Invalid username or password.</p>
+            </div>
+            <div th:if="${param.logout}" class="form-group text-center">
+                <p class="text-success">You have been logged out.</p>
+            </div>
+        </form>
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

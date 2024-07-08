@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование блюд</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/style_cashier.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
+<div class="container mt-2">
+    <div class="menu-section">
+        <!-- ПОИСК -->
+        <form th:fragment="searchLine" method="GET" action="/cashier/menu/search" class="form-inline mb-2">
+            <label for="search" class="mr-2">ПОИСК:</label>
+            <input type="text" id="search" name="search" th:value="${search}" oninput="checkSearchInput()"
+                   class="form-control mr-2" style="width: 400px;"/>
+            <button type="submit" id="search-button" class="btn btn-primary btn-sm" disabled>НАЙТИ</button>
+            <button type="button" onclick="window.location.href='/cashier/menu/reset-search'"
+                    class="btn btn-secondary btn-sm ml-2">СБРОСИТЬ
+            </button>
+        </form>
+
+        <!-- блок при отсутствии результатов поиска -->
+        <div th:fragment="searchIsEmpty" th:if="${searchIsEmpty}" class="alert alert-danger">
+            <p th:text="'По Вашему запросу \'' + ${search} + '\' ничего не найдено.'"></p>
+        </div>
+
+        <!-- ССЫЛКИ НА ГРУППЫ МЕНЮ -->
+        <div class="group-links">
+            <button th:each="entry : ${groupedMenuItems}" th:text="${entry.key}"
+                    th:data-group="${entry.key}"
+                    class="btn btn-outline-primary group-link-button"
+                    style="width: 100px;"
+                    onclick="scrollToGroup(this.getAttribute('data-group'))"></button>
+        </div>
+
+        <!-- БЛОК ДЛЯ СПИСКА БЛЮД -->
+        <div class="menu-items-container">
+            <!-- карточка обычного пункта меню -->
+            <div th:fragment="menuItemsList" th:each="entry : ${groupedMenuItems}">
+                <h3 th:text="${entry.key}" th:id="${entry.key}">group name</h3>
+                <div class="group">
+                    <div th:each="item : ${entry.value}" th:id="'menuItem_' + ${item.id}"
+                         th:class="${item.active} ? 'menu-item active' : 'menu-item inactive'">
+                        <img th:src="@{${item.imageURL}}" alt="image"/>
+                        <div class="menu-item-details">
+                            <div><span class="menu-item-big-text" th:text="${item.name}"></span></div>
+                            <div><span class="menu-item-small-text" th:text="${item.description}"></span></div>
+                            <div th:if="${item.specialPrice != null and item.specialPrice lt item.price}">
+                                <span style="text-decoration: line-through;" th:text="${item.price}"></span>
+                                <span style="color: red;" th:text="${item.specialPrice}"></span>
+                            </div>
+                            <div th:if="${item.specialPrice == null or item.specialPrice ge item.price}">
+                                <span th:text="${item.price}"></span>
+                            </div>
+                            <div th:if="${item.active}" class="quantity-wrapper">
+                                <button type="button" class="quantity-button"
+                                        th:onclick="'updateQuantity(' + ${item.id} + ', -1)'"
+                                        th:id="'decrease_' + ${item.id}"
+                                        th:disabled="${menuItemQuantities[item.id] == 0}">-</button>
+                                <input type="number" class="quantity-input"
+                                       th:id="'quantity_' + ${item.id}"
+                                       th:value="${#numbers.formatInteger(menuItemQuantities[item.id], 0)}" readonly/>
+                                <button type="button" class="quantity-button"
+                                        th:onclick="'updateQuantity(' + ${item.id} + ', 1)'">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- БЛОК ДЛЯ КОРЗИНЫ -->
+    <div class="order-section">
+        <h3>ЗАКАЗ</h3>
+
+        <table class="order-table">
+            <tbody id="basket">
+            <!-- Здесь будут отображаться выбранные пункты меню -->
+            <tr th:each="item : ${basket.items}">
+                <td style="text-align: left;" th:text="${item.menuItem.name}">name</td>
+                <td style="text-align: left;" th:text="${item.menuItem.specialPrice != null and item.menuItem.specialPrice lt item.menuItem.price ? item.menuItem.specialPrice : item.menuItem.price}">PRICE</td>
+                <td style="text-align: left;"><span>×</span><span th:text="${item.quantity}">quantity</span></td>
+                <td style="text-align: left;" th:text="${item.quantity * (item.menuItem.specialPrice != null and item.menuItem.specialPrice lt item.menuItem.price ? item.menuItem.specialPrice : item.menuItem.price)}">total</td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td colspan="3">Общая стоимость:</td>
+                <td id="total-cost" th:text="${totalCost}">0.00</td>
+            </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-2 d-flex justify-content-end">
+            <button id="reset-button" class="btn btn-danger mr-2" onclick="resetBasket()">СБРОСИТЬ</button>
+            <button id="proceed-button" class="btn btn-success" onclick="proceedToPayment()">К ОПЛАТЕ</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    window.onload = function() {
+        const searchInput = document.getElementById('search');
+        searchInput.focus();
+        searchInput.select();
+
+        // Обновление состояния кнопок при загрузке страницы
+        updateButtonState();
+    }
+
+    function checkSearchInput() {
+        console.log('checkSearchInput called');
+        const searchInput = document.getElementById('search').value.trim();
+        const searchButton = document.getElementById('search-button');
+        searchButton.disabled = searchInput.length < 2;
+    }
+
+    function scrollToGroup(group) {
+        console.log('scrollToGroup called with group:', group);
+        const element = document.getElementById(group);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    }
+
+    function updateQuantity(itemId, change) {
+        console.log('updateQuantity called with itemId:', itemId, 'change:', change);
+        const quantityInput = document.getElementById('quantity_' + itemId);
+        const decreaseButton = document.getElementById('decrease_' + itemId);
+
+        // Проверка на активность пункта меню
+        $.ajax({
+            url: '/cashier/menu/checkMenuItemStatus',
+            type: 'GET',
+            data: { menuItemId: itemId },
+            success: function(isActive) {
+                if (isActive) {
+                    // Пункт меню активен, продолжаем логику обновления количества
+                    let quantity = parseInt(quantityInput.value) + change;
+                    if (quantity < 0) {
+                        quantity = 0;
+                    }
+                    quantityInput.value = quantity;
+
+                    if (quantity === 0) {
+                        decreaseButton.disabled = true;
+                    } else {
+                        decreaseButton.disabled = false;
+                    }
+
+                    $.ajax({
+                        url: '/cashier/menu/updateBasket',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ menuItem: { id: itemId }, quantity: quantity }),
+                        success: function(response) {
+                            console.log('updateBasket success', response);
+                            updateBasketView(response);
+                            updateButtonState();
+                        },
+                        error: function(error) {
+                            console.log('updateBasket error', error);
+                        }
+                    });
+                } else {
+                    // Пункт меню неактивен, обновляем страницу
+                    location.reload();
+                }
+            },
+            error: function(error) {
+                console.log('checkMenuItemStatus error', error);
+            }
+        });
+    }
+
+    function updateBasketView(basket) {
+        console.log('updateBasketView called', basket);
+        const basketElement = document.getElementById('basket');
+        basketElement.innerHTML = ''; // Очистка текущей корзины
+        let totalCost = 0;
+
+        basket.items.forEach(item => {
+            const price = (item.menuItem.specialPrice != null && item.menuItem.specialPrice < item.menuItem.price)
+                ? item.menuItem.specialPrice
+                : item.menuItem.price;
+            const itemTotal = (price * item.quantity).toFixed(2);
+            totalCost += parseFloat(itemTotal);
+
+            const row = document.createElement('tr');
+            row.id = 'basket_item_' + item.menuItem.id;
+            row.innerHTML = `
+                <td>${item.menuItem.name}</td>
+                <td>${price.toFixed(2)}</td>
+                <td>×${item.quantity}</td>
+                <td>${itemTotal}</td>
+            `;
+            basketElement.appendChild(row);
+
+            // Обновление количества в карточках
+            const quantityInput = document.getElementById('quantity_' + item.menuItem.id);
+            const decreaseButton = document.getElementById('decrease_' + item.menuItem.id);
+            quantityInput.value = item.quantity;
+            decreaseButton.disabled = item.quantity === 0;
+        });
+
+        document.getElementById('total-cost').innerText = totalCost.toFixed(2);
+    }
+
+
+    function resetBasket() {
+        $.ajax({
+            url: '/cashier/menu/resetBasket',
+            type: 'POST',
+            success: function(response) {
+                console.log('resetBasket success', response);
+                window.location.reload(); // Перезагрузка страницы для очистки всех данных
+            },
+            error: function(error) {
+                console.log('resetBasket error', error);
+            }
+        });
+    }
+
+    function proceedToPayment() {
+        window.location.href = '/cashier/receipt';
+    }
+
+    function updateButtonState() {
+        const basketElement = document.getElementById('basket');
+        const resetButton = document.getElementById('reset-button');
+        const proceedButton = document.getElementById('proceed-button');
+
+        if (basketElement.children.length === 0) {
+            resetButton.disabled = true;
+            proceedButton.disabled = true;
+        } else {
+            resetButton.disabled = false;
+            proceedButton.disabled = false;
+        }
+    }
+
+</script>
+</body>
+</html>

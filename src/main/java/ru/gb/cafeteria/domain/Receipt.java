@@ -2,6 +2,8 @@ package ru.gb.cafeteria.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import ru.gb.cafeteria.bonusSystem.domain.BonusCard;
 
 import java.math.BigDecimal;
@@ -29,6 +31,10 @@ public class Receipt {
     private ReceiptStatus receiptStatus;
 
     @ManyToOne
+    @JoinColumn(name = "staff_id", nullable = false)
+    private Staff staff;
+
+    @ManyToOne
     @JoinColumn(name = "card_id")
     private BonusCard bonusCard;
 
@@ -42,5 +48,23 @@ public class Receipt {
     private BigDecimal finalSum;
 
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private List<Order> orderList;
+
+    @Override
+    public String toString() {
+        return new org.apache.commons.lang3.builder.ToStringBuilder(this)
+                .append("receiptId", receiptId)
+                .append("openTime", openTime)
+                .append("closeTime", closeTime)
+                .append("receiptStatus", receiptStatus)
+                .append("staff", staff)
+                .append("bonusCard", bonusCard)
+                .append("totalSum", totalSum)
+                .append("discountSum", discountSum)
+                .append("finalSum", finalSum)
+                .append("orderList size", orderList.size())
+                .toString();
+    }
 }

@@ -6,6 +6,9 @@
     <meta http-equiv="refresh" content="3"> <!-- Автообновление страницы каждые 2 секунды -->
 </head>
 <body>
+
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
 <h1>Orders in Progress</h1>
 <button onclick="location.reload()">ОБНОВИТЬ</button>
 <br>
