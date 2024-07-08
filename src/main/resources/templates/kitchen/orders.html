@@ -2,33 +2,117 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Kitchen Orders</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}" />
-    <meta http-equiv="refresh" content="3"> <!-- Автообновление страницы каждые 2 секунды -->
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta http-equiv="refresh" content="3"> <!-- Автообновление страницы каждые 3 секунд -->
+    <style>
+        .kitchen-title {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+        .order-card {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 5px 20px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.2);
+        }
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            justify-content:center;
+            align-items: center;
+        }
+        .order-image {
+            flex: 1;
+            height: 80px;
+            width: 50px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+        }
+        .order-details {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            margin-top: 5px;
+        }
+        .order-actions {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .order-actions button {
+            margin: 0 16px;
+            width: 60px;
+            height: 60px;
+        }
+    </style>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header-bar}"></div>
 
-<h1>Orders in Progress</h1>
-<button onclick="location.reload()">ОБНОВИТЬ</button>
-<br>
-<div th:each="order : ${orderList}" class="order-card">
-    <div>
-        <p><strong>Order ID:</strong> <span th:text="${order.orderId}">1</span></p>
-        <p><strong>Menu Item:</strong> <span th:text="${order.menuItem.name}">Item Name</span></p>
-        <p><strong>Quantity:</strong> <span th:text="${order.quantity}">1</span></p>
+<div class="container mt-2">
+    <div class="kitchen-title">
+        <h1 id="current-time" class="text-left mb-4"></h1>
+        <button class="btn btn-secondary" onclick="location.reload()">ОБНОВИТЬ</button>
     </div>
-    <form th:action="@{/kitchen/order}" method="post">
-        <input type="hidden" name="orderId" th:value="${order.orderId}" />
-        <input type="hidden" name="status" value="ready" />
-        <button type="submit">ВЫПОЛНЕНО</button>
-    </form>
-    <form th:action="@{/kitchen/order}" method="post">
-        <input type="hidden" name="orderId" th:value="${order.orderId}" />
-        <input type="hidden" name="status" value="cancel" />
-        <button type="submit">ОТМЕНИТЬ</button>
-    </form>
+
+    <div class="d-flex justify-content-center">
+        <div class="w-100">
+            <div th:each="order : ${orderList}" class="order-card">
+                <div class="order-info">
+                    <h2 th:text="${order.receipt.clientCode}">Client Code</h2>
+                    <h5 th:text="${#temporals.format(order.receipt.closeTime, 'HH:mm:ss')}" style="text-align: center;">Time</h5>
+                </div>
+                <div class="order-image" th:style="'background-image: url(' + ${order.menuItem.imageURL} + ')'"></div>
+                <div class="order-details">
+                    <p th:text="${order.menuItem.name}" style="font-size: 24px; font-weight: bold; margin: 0;">Item Name</p>
+                    <p th:text="'× ' + ${order.quantity}" style="color: crimson; font-size: 32px; font-weight: bold; margin: 0;">Quantity</p>
+                </div>
+                <div class="order-actions">
+<!--                    кнопка ОТМЕНИТЬ ЗАКАЗ-->
+<!--                    <form th:action="@{/kitchen/order}" method="post">-->
+<!--                        <input type="hidden" name="orderId" th:value="${order.orderId}"/>-->
+<!--                        <input type="hidden" name="status" value="cancel"/>-->
+<!--                        <button class="imgButton" type="submit" value="" style="background: url('/img/recycle1.png') no-repeat; background-size: cover;"></button>-->
+<!--                    </form>-->
+                    <div></div>
+                    <form th:action="@{/kitchen/order}" method="post">
+                        <input type="hidden" name="orderId" th:value="${order.orderId}"/>
+                        <input type="hidden" name="status" value="ready"/>
+                        <button class="imgButton" type="submit" value="" style="background: url('/img/save.png') no-repeat; background-size: cover;"></button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function updateTime() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const currentTime = `${hours}:${minutes}:${seconds}`;
+        document.getElementById('current-time').textContent = currentTime;
+    }
+
+    setInterval(updateTime, 1000); // Обновление времени каждую секунду
+    updateTime(); // Первоначальное обновление времени
+</script>
 </body>
 </html>

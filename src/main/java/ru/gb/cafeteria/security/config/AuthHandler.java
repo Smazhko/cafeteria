@@ -37,5 +37,8 @@ public class AuthHandler implements AuthenticationSuccessHandler {
         if (roles.contains("ROLE_CASHIER")) {
             response.sendRedirect("/cashier/menu");
         }
+        if (roles.contains("ROLE_CLIENT")) {
+            response.sendRedirect("/client");
+        }
     }
 }

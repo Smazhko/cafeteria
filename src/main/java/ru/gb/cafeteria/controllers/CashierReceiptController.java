@@ -33,8 +33,10 @@ public class CashierReceiptController {
     @TrackUserAction
     @GetMapping
     public String showReceipt(@RequestParam(required = false) Long cardId, HttpSession session, Model model) {
+
         BasketDTO basket = basketService.getBasket(session);
-        Receipt receipt = receiptService.createNewReceipt(basket);
+        Receipt receipt = receiptService.createNewReceipt(basket, session);
+
         model.addAttribute("receipt", receipt);
         model.addAttribute("searchIsEmpty", true);
         if (cardId != null) {
@@ -50,7 +52,7 @@ public class CashierReceiptController {
     @PostMapping("/pay/{receiptId}")
     public String payReceipt(@PathVariable Long receiptId, @RequestParam(required = false) Long cardId, HttpSession session) {
         System.out.println("PAYMENT PROCEED... " + receiptId);
-        receiptService.payReceiptById(receiptId);
+        receiptService.payReceiptById(receiptId, session);
         if (cardId != null) {
             bonusCardService.refreshDiscount(cardId);
         }
@@ -59,12 +61,11 @@ public class CashierReceiptController {
     }
 
 
-
     @TrackUserAction
     @PostMapping("/edit/{receiptId}")
-    public String editReceipt(@PathVariable Long receiptId, Model model) {
+    public String editReceipt(@PathVariable Long receiptId, Model model, HttpSession session) {
         try {
-            receiptService.cancelReceipt(receiptId);
+            receiptService.cancelReceipt(receiptId, session);
             return "redirect:/cashier/menu"; // Перенаправление на страницу меню
         } catch (UnauthorizedAccessException ex) {
             model.addAttribute("errorMessage", ex.getMessage());
@@ -77,7 +78,7 @@ public class CashierReceiptController {
     @PostMapping("/cancel/{receiptId}")
     public String receiptCancel(@PathVariable Long receiptId, Model model, HttpSession session) {
         try {
-            receiptService.cancelReceipt(receiptId);
+            receiptService.cancelReceipt(receiptId, session);
             basketService.clearBasket(session);
             return "redirect:/cashier/menu"; // Перенаправление на страницу меню
         } catch (UnauthorizedAccessException ex) {
@@ -104,9 +105,10 @@ public class CashierReceiptController {
 
     @TrackUserAction
     @PostMapping("/apply-discount")
-    public String applyDiscount(@RequestParam("cardId") Long cardId, @RequestParam("receiptId") Long receiptId, Model model) {
+    public String applyDiscount(@RequestParam("cardId") Long cardId, @RequestParam("receiptId") Long receiptId, Model model, HttpSession session) {
         Receipt receipt = receiptService.applyBonusCard(receiptId, cardId);
         BonusCard appliedCard = bonusCardService.getBonusCardById(cardId);
+        receiptService.setCurrentReceipt(receipt, session);
         model.addAttribute("receipt", receipt);
         model.addAttribute("bonusCard", appliedCard);
         model.addAttribute("searchIsEmpty", false);

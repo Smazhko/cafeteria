@@ -1,5 +1,6 @@
 package ru.gb.cafeteria.services;
 
+import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,13 +23,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @AllArgsConstructor
 public class ReceiptService {
 
     private ReceiptRepository receiptRepo;
-    private ReceiptStatusRepository rStatusRepo;
+    private ReceiptStatusRepository receiptStatusRepo;
     private OrderRepository orderRepo;
     private OrderStatusRepository orderStatusRepo;
     private BonusCardRepository cardRepo;
@@ -37,12 +39,24 @@ public class ReceiptService {
 
 
     public ReceiptStatus getReceiptStatusByName(String name) {
-        return rStatusRepo.findByStatusName(name);
+        return receiptStatusRepo.findByStatusName(name);
     }
 
 
     public List<ReceiptStatus> getAllReceiptStatuses() {
-        return rStatusRepo.findAll();
+        return receiptStatusRepo.findAll();
+    }
+
+
+    public  List<Receipt> getAllPaidReceipts(){
+        ReceiptStatus paidStatus = receiptStatusRepo.findByStatusName("PAID");
+        return receiptRepo.findByReceiptStatus(paidStatus);
+    }
+
+
+    public  List<Receipt> getAllClosedReceipts(){
+        ReceiptStatus closedStatus = receiptStatusRepo.findByStatusName("CLOSED");
+        return receiptRepo.findByReceiptStatusAndReceivedFalse(closedStatus);
     }
 
 
@@ -50,13 +64,13 @@ public class ReceiptService {
         if (startDate == null) {
             return (statusId == null || statusId == 0) ?
                     receiptRepo.findAllByOpenTimeBefore(endDate.atStartOfDay().plusDays(1)) :
-                    receiptRepo.findAllByOpenTimeBeforeAndReceiptStatus(endDate.atStartOfDay().plusDays(1), rStatusRepo.findById(statusId).orElseThrow());
+                    receiptRepo.findAllByOpenTimeBeforeAndReceiptStatus(endDate.atStartOfDay().plusDays(1), receiptStatusRepo.findById(statusId).orElseThrow());
         } else {
             LocalDateTime start = startDate.atStartOfDay();
             LocalDateTime end = endDate.atStartOfDay().plusDays(1);
             return (statusId == null || statusId == 0) ?
                     receiptRepo.findAllByOpenTimeBetween(start, end) :
-                    receiptRepo.findAllByOpenTimeBetweenAndReceiptStatus(start, end, rStatusRepo.findById(statusId).orElseThrow());
+                    receiptRepo.findAllByOpenTimeBetweenAndReceiptStatus(start, end, receiptStatusRepo.findById(statusId).orElseThrow());
         }
     }
 
@@ -71,6 +85,26 @@ public class ReceiptService {
     }
 
 
+    // >> получение текущего чека из сессии
+    @TrackUserAction
+    public Receipt getCurrentReceipt(HttpSession session) {
+        System.out.println("GET CURRENT " + (Receipt) session.getAttribute("currentReceipt"));
+        return (Receipt) session.getAttribute("currentReceipt");
+    }
+
+    // >> установка текущего чека в сессии
+    @TrackUserAction
+    public void setCurrentReceipt(Receipt receipt, HttpSession session) {
+        session.setAttribute("currentReceipt", receipt);
+        System.out.println("SET CURRENT " + (Receipt) session.getAttribute("currentReceipt"));
+    }
+
+    @TrackUserAction
+    public void clearCurrentReceipt(HttpSession session) {
+        session.removeAttribute("currentReceipt");
+        System.out.println("CLEAR CURRENT " + (Receipt) session.getAttribute("currentReceipt"));
+    }
+
     // формирование чека на основании корзины
     // получить сотрудника, который составляет чек
     // СФОРМИРОВАТЬ ЧЕК:
@@ -80,7 +114,13 @@ public class ReceiptService {
     // 4. сохранить чек
     @Transactional
     @TrackUserAction
-    public Receipt createNewReceipt(BasketDTO basket) {
+    public Receipt createNewReceipt(BasketDTO basket, HttpSession session) {
+        // Проверка существующего чека в сессии
+        Receipt currentReceipt = getCurrentReceipt(session);
+        if (currentReceipt != null) {
+            return currentReceipt;
+        }
+
         // Получение текущего пользователя
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user;
@@ -96,15 +136,39 @@ public class ReceiptService {
 
         Receipt newReceipt = new Receipt();
         newReceipt.setOpenTime(LocalDateTime.now());
+        newReceipt.setClientCode(generateClientCode());
         newReceipt.setReceiptStatus(getReceiptStatusByName("OPEN"));
         newReceipt.setStaff(staff);
+        newReceipt.setReceived(false);
         receiptRepo.save(newReceipt);
         List<Order> orderList = createOrderList(newReceipt, basket);
         newReceipt.setReceiptStatus(getReceiptStatusByName("READY TO PAY"));
         newReceipt.setOrderList(orderList);
         saveReceipt(newReceipt);
+        // Сохранение чека в сессии
+        setCurrentReceipt(newReceipt, session);
         return newReceipt;
     }
+
+    public String generateClientCode() {
+        LocalDate today = LocalDate.now();
+        LocalDateTime startOfDay = today.atStartOfDay();
+        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay();
+
+        List<String> clientCodes = receiptRepo.findClientCodesForToday(startOfDay, endOfDay);
+
+        int maxNumber = clientCodes.stream()
+                .map(code -> Integer.parseInt(code.substring(1)))
+                .max(Integer::compareTo)
+                .orElse(0);
+
+        int newNumber = maxNumber + 1;
+        String numberStr = String.format("%03d", newNumber);
+        char letter = (char) ('A' + new Random().nextInt(5));
+
+        return letter + numberStr;
+    }
+
 
 
     @TrackUserAction
@@ -139,6 +203,7 @@ public class ReceiptService {
     }
 
 
+    @Transactional
     public Receipt applyBonusCard(Long receiptId, Long cardId) {
         Receipt receipt = getReceiptById(receiptId);
         BonusCard bonusCard = cardRepo.findById(cardId).orElseThrow();
@@ -149,7 +214,8 @@ public class ReceiptService {
 
 
     @TrackUserAction
-    public void payReceiptById(Long receiptId) {
+    @Transactional
+    public void payReceiptById(Long receiptId, HttpSession session) {
         Receipt receipt = getReceiptById(receiptId);
         receipt.setReceiptStatus(getReceiptStatusByName("PAID"));
         receipt.setCloseTime(LocalDateTime.now());
@@ -159,6 +225,7 @@ public class ReceiptService {
         if (card != null) {
             card.setTotalSum(card.getTotalSum().add(receipt.getFinalSum()));
         }
+        clearCurrentReceipt(session);
         receiptRepo.save(receipt);
     }
 
@@ -167,7 +234,8 @@ public class ReceiptService {
     // если чек имеет статус OPEN или READY TO PAY, то он полностью удаляется.
     // оплаченные чеки кассиру удалить нельзя!
     @TrackUserAction
-    public void cancelReceipt(Long receiptId) throws UnauthorizedAccessException {
+    @Transactional
+    public void cancelReceipt(Long receiptId, HttpSession session) throws UnauthorizedAccessException {
         Receipt receipt = getReceiptById(receiptId);
         ReceiptStatus formingStatus = getReceiptStatusByName("OPEN");
         ReceiptStatus readyToPayStatus = getReceiptStatusByName("READY TO PAY");
@@ -175,15 +243,19 @@ public class ReceiptService {
         if (receipt.getReceiptStatus().equals(formingStatus) ||
                 receipt.getReceiptStatus().equals(readyToPayStatus)) {
             receiptRepo.deleteById(receiptId); // каскадное удаление заказов вслед за удалением чека
+            // удаляем чек из сессии
+            clearCurrentReceipt(session);
         } else {
             throw new UnauthorizedAccessException("Удаление чека со статусом \"PAID\" запрещено. ");
         }
+        clearCurrentReceipt(session);
         System.out.println("DELETING ... " + receipt.getReceiptId());
     }
 
 
     // удаление чеков для менеджера - полное каскадное удаление вместе с входящими в чеки заказами
     @TrackUserAction
+    @Transactional
     public void deleteReceiptById(Long id) {
         receiptRepo.deleteById(id);
     }
@@ -195,6 +267,7 @@ public class ReceiptService {
     // в конце - расчёт итоговой суммы чека
     // TODO - начисление и снятие бонусов
     @TrackUserAction
+    @Transactional
     private Receipt recalculateReceipt(Receipt receipt) {
         if (!receipt.getOrderList().isEmpty()) {
             receipt.setTotalSum(receipt.getOrderList().stream()
@@ -216,11 +289,19 @@ public class ReceiptService {
     }
 
     @TrackUserAction
+    @Transactional
     public void sendReceiptOrdersToKitchen(Receipt receipt) {
         List<Order> orderList = receipt.getOrderList();
         for (Order order : orderList) {
             order.setOrderStatus(orderStatusRepo.findByStatusName("IN PROGRESS"));
         }
+        saveReceipt(receipt);
+    }
+
+    @Transactional
+    public void receiveReceipt(Long receiptId) {
+        Receipt receipt = getReceiptById(receiptId);
+        receipt.setReceived(true);
         saveReceipt(receipt);
     }
 }

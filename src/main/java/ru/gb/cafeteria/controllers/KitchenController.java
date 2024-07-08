@@ -1,6 +1,7 @@
 package ru.gb.cafeteria.controllers;
 
 
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -35,13 +36,13 @@ public class KitchenController {
     @PostMapping("/order")
     public String changeOrderStatus(
             @RequestParam(name = "orderId") Long orderId,
-            @RequestParam(name = "status") String status) {
-        OrderStatus readyStatus = orderService.getOrderStatusById(3L);
-        OrderStatus cancelledStatus = orderService.getOrderStatusById(4L);
+            @RequestParam(name = "status") String status, HttpSession session) {
+        OrderStatus readyStatus = orderService.getOrderStatusByName("READY");
+        OrderStatus cancelledStatus = orderService.getOrderStatusByName("CANCELLED");
         if (status.equals("ready"))
-            orderService.updateOrderStatus(orderId, readyStatus);
+            orderService.updateOrderStatus(orderId, readyStatus, session);
         else if (status.equals("cancel"))
-            orderService.updateOrderStatus(orderId, cancelledStatus);
+            orderService.updateOrderStatus(orderId, cancelledStatus, session);
         return "redirect:/kitchen";
     }
 }

@@ -20,16 +20,19 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     transition: opacity 124ms linear, transform 124ms linear;
+    outline: none;
 }
 
 .imgButton:hover {
     opacity: 0.6;
     transform: scale(1.15);
+    outline: none;
 }
 
 .imgButtonInput:hover {
     opacity: 0.6;
     transform: scale(1.15);
+    outline: none;
 }
 
 

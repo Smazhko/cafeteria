@@ -1,13 +1,16 @@
 package ru.gb.cafeteria.services;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.gb.cafeteria.domain.*;
 import ru.gb.cafeteria.dto.BasketDTO;
 import ru.gb.cafeteria.dto.BasketItemDTO;
-import ru.gb.cafeteria.repository.OrderRepository;
-import ru.gb.cafeteria.repository.OrderStatusRepository;
-import ru.gb.cafeteria.repository.ReceiptRepository;
+import ru.gb.cafeteria.repository.*;
+import ru.gb.cafeteria.security.domain.User;
+import ru.gb.cafeteria.security.repository.UserRepository;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -20,15 +23,13 @@ public class OrderService {
     private OrderRepository orderRepo;
     private OrderStatusRepository orderStatusRepo;
     private ReceiptRepository receiptRepo;
+    private ReceiptStatusRepository receiptStatusRepo;
+    private UserRepository userRepo;
+    private StaffRepository staffRepo;
 
 
     public OrderStatus getOrderStatusByName(String name) {
         return orderStatusRepo.findByStatusName(name);
-    }
-
-
-    public OrderStatus getOrderStatusById(Long id) {
-        return orderStatusRepo.findById(id).orElseThrow();
     }
 
 
@@ -42,35 +43,36 @@ public class OrderService {
     }
 
 
-    public void saveOrder(Order order) {
-        orderRepo.save(order);
-    }
-
-
-    public void updateOrderStatus(Long orderId, OrderStatus orderStatus) {
+    public void updateOrderStatus(Long orderId, OrderStatus orderStatus, HttpSession session) {
         Order order = getOrderById(orderId);
         order.setOrderStatus(orderStatus);
-        orderRepo.save(order);
-    }
 
-
-    public void updateOrderChef(Order order, Staff chef){
-        order.setChef(chef);
-        orderRepo.save(order);
-    }
-
-
-    public void updateOrdersChef(List<Order> orderList, Staff chef){
-        for (Order order : orderList) {
-            order.setChef(chef);
+        // Получение текущего пользователя
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user;
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();
+            user = userRepo.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        } else {
+            throw new RuntimeException("Unable to get current user");
         }
-        orderRepo.saveAll(orderList);
+        Staff staff = staffRepo.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("Staff not found"));
+
+        order.setChef(staff);
+        updateReceiptStatus(order.getReceipt());
+        orderRepo.save(order);
     }
 
 
-    public boolean areOrdersReady(Long receiptId) {
-        Receipt currentReceipt = receiptRepo.findById(receiptId).orElseThrow();
-        List<Order> orders = orderRepo.findByReceipt(currentReceipt);
-        return orders.stream().allMatch(order -> order.getOrderStatus().getStatusName().equals("READY"));
+    // после изменения статуса каждого заказа обновляем статус чека
+    // получаем чек, получаем список его заказов.
+    // если в списке заказов текущего чека все заказы со статусом READY, то чек меняет статус на CLOSED
+    public void updateReceiptStatus(Receipt receipt) {
+        ReceiptStatus closedStatus = receiptStatusRepo.findByStatusName("CLOSED");
+        List<Order> orders = orderRepo.findByReceipt(receipt);
+        if (orders.stream().allMatch(order -> order.getOrderStatus().getStatusName().equals("READY")))
+            receipt.setReceiptStatus(closedStatus);
     }
 }

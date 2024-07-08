@@ -22,14 +22,17 @@
 
     <div class="bonus-section">
         <!-- ПОИСК -->
-        <form th:fragment="searchLine" method="GET" action="/cashier/receipt/search" class="form-inline mb-2" onsubmit="return false;">
+        <form th:fragment="searchLine" method="GET" action="/cashier/receipt/search" class="form-inline mb-2"
+              onsubmit="return false;">
             <label for="search" class="mr-2">ПОИСК:</label>
             <div class="position-relative">
-                <input type="text" id="search" name="search" th:value="${bonusSearch}" oninput="checkSearchInput()" onkeydown="return handleKeyDown(event)"
+                <input type="text" id="search" name="search" th:value="${bonusSearch}" oninput="checkSearchInput()"
+                       onkeydown="return handleKeyDown(event)"
                        class="form-control mr-2" style="width: 250px;"/>
                 <!-- Выпадающий список результатов поиска -->
                 <div id="search-results" class="dropdown-menu" style="display: none;">
-                    <a class="dropdown-item" th:each="card : ${bonusCards}" th:onclick="'fillSearch(\'' + ${card.clientPhone} + '\')'"
+                    <a class="dropdown-item" th:each="card : ${bonusCards}"
+                       th:onclick="'fillSearch(\'' + ${card.clientPhone} + '\')'"
                        th:text="${card.clientPhone + ' (' + card.clientName + ')'}"></a>
                 </div>
             </div>
@@ -46,13 +49,14 @@
             </div>
             <div class="card-body">
                 <table class="table">
-                    <thead>
+                    <tbody>
+                    <tr>
                         <th scope="row">Карта:</th>
                         <td><span th:text="${bonusCard.discountType.discountName}">...</span>
-                            (<span th:text="${bonusCard.discountType.discountPercent + '%'}" style="color:red; font-weight:bold;">...</span>)
+                            (<span th:text="${bonusCard.discountType.discountPercent + '%'}"
+                                   style="color:red; font-weight:bold;">...</span>)
                         </td>
-                    </thead>
-                    <tbody>
+                    </tr>
                     <tr>
                         <th scope="row">Описание:</th>
                         <td><span th:text="${bonusCard.discountType.description}">...</span></td>
@@ -84,7 +88,6 @@
         </div>
 
 
-
         <!-- Форма создания новой бонусной карты -->
         <div id="create-bonus-card" style="display: none;">
             <h5>Создание новой бонусной карты</h5>
@@ -93,7 +96,8 @@
                 <div class="form-group row">
                     <label for="clientPhone" class="col-sm-2 col-form-label">Телефон:</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="clientPhone" name="clientPhone" th:value="${bonusSearch}" required>
+                        <input type="text" class="form-control" id="clientPhone" name="clientPhone"
+                               th:value="${bonusSearch}" required>
                     </div>
                 </div>
                 <div class="form-group row">
@@ -138,19 +142,23 @@
                 <td colspan="3">Итоговая сумма:</td>
                 <td th:text="${receipt.finalSum}">0.00</td>
             </tr>
+            <tr>
+                <td colspan="4" style="font-size: 36pt; text-align: center;" th:text="${receipt.clientCode}"></td>
+            </tr>
             </tfoot>
         </table>
 
         <div class="mt-2 d-flex flex-column align-items-center">
             <div class="d-flex mb-2">
-                <form th:action="@{/cashier/receipt/cancel/{receiptId}(receiptId=${receipt.receiptId})}" method="post" class="mr-2">
+                <form th:action="@{/cashier/receipt/cancel/{receiptId}(receiptId=${receipt.receiptId})}" method="post"
+                      class="mr-2">
                     <button type="submit" class="btn-receipt btn btn-danger">ОТМЕНА</button>
                 </form>
                 <form th:action="@{/cashier/receipt/edit/{receiptId}(receiptId=${receipt.receiptId})}" method="post">
                     <button type="submit" class="btn-receipt btn btn-primary">ИЗМЕНИТЬ</button>
                 </form>
             </div>
-            <form th:action="@{'/cashier/receipt/pay/' + ${receipt.receiptId}}" method="post" style="width:90%;">
+            <form th:action="@{'/cashier/receipt/pay/' + ${receipt.receiptId}}" method="post" style="width:370px;">
                 <input type="hidden" name="cardId" th:value="${bonusCard != null ? bonusCard.cardId : ''}">
                 <button type="submit" class="btn btn-success btn-block">ОПЛАТИТЬ</button>
             </form>

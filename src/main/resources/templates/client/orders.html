@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Client Orders</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta http-equiv="refresh" content="3">
+    <style>
+        .card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .loading-animation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .loading-animation img {
+            width: 103px;
+            height: 45px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-2">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>В процессе подготовки</h2>
+            <div th:each="receipt : ${waitReceiptList}" class="card mb-3">
+                <div class="card-body">
+
+                    <h1 class="card-title" th:text="${receipt.clientCode}">Client Code</h1>
+                    <p class="card-text" th:text="${#temporals.format(receipt.closeTime, 'HH:mm:ss')}">Time</p>
+
+                    <div class="loading-animation">
+                        <img src="/img/loading.gif" alt="Loading">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <h2 style="text-align: right;">Готово к выдаче</h2>
+            <div th:each="receipt : ${readyReceiptList}" class="card mb-3">
+                <div class="card-body">
+                    <h1 class="card-title" th:text="${receipt.clientCode}">Client Code</h1>
+                    <p class="card-text" th:text="${#temporals.format(receipt.closeTime, 'HH:mm:ss')}">Time</p>
+                    <form th:action="@{/client/receive/{receiptId}(receiptId=${receipt.receiptId})}" method="post"
+                          class="mb-0">
+                        <button type="submit" class="btn btn-success">ПОЛУЧИТЬ</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

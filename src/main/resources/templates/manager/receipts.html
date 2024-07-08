@@ -53,6 +53,7 @@
             <th>Открыт</th>
             <th>Закрыт</th>
             <th>Статус</th>
+            <th>Получен</th>
             <th>Сумма</th>
             <th>Скидка</th>
             <th>ИТОГ</th>
@@ -65,9 +66,10 @@
             <td th:text="${#temporals.format(receipt.openTime, 'dd.MM.yyyy HH:mm:ss')}"></td>
             <td th:text="${#temporals.format(receipt.closeTime, 'dd.MM.yyyy HH:mm:ss')}"></td>
             <td th:text="${receipt.receiptStatus.statusName}"></td>
-            <td th:text="${receipt.totalSum}"></td>
-            <td th:text="${receipt.discountSum}"></td>
-            <td th:text="${receipt.finalSum}"></td>
+            <td th:text="${receipt.received ? 'да' : 'нет'}" style="text-align: center;"></td>
+            <td th:text="${receipt.totalSum}" style="text-align: right;"></td>
+            <td th:text="${receipt.discountSum}" style="text-align: right;"></td>
+            <td th:text="${receipt.finalSum}" style="text-align: right;"></td>
             <td>
                 <form th:action="@{/manager/receipts/delete}" method="post">
                     <input type="hidden" name="id" th:value="${receipt.receiptId}">
@@ -79,9 +81,9 @@
         <tfoot>
         <tr>
             <td colspan="4" class="text-right"><strong>Итог:</strong></td>
-            <td th:text="${totalSum}"></td>
-            <td th:text="${discountSum}"></td>
-            <td th:text="${finalSum}"></td>
+            <td th:text="${totalSum}" style="text-align: right;"></td>
+            <td th:text="${discountSum}" style="text-align: right;"></td>
+            <td th:text="${finalSum}" style="text-align: right;"></td>
             <td></td>
         </tr>
         </tfoot>

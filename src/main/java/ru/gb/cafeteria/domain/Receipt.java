@@ -20,6 +20,9 @@ public class Receipt {
     @Column(name = "receipt_id")
     private Long receiptId;
 
+    @Column(name = "client_receipt_code", nullable = false)
+    private String clientCode;
+
     @Column(name = "open_time", nullable = false)
     private LocalDateTime openTime;
 
@@ -47,6 +50,9 @@ public class Receipt {
     @Column(name = "final_sum", precision = 10, scale = 2)
     private BigDecimal finalSum;
 
+    @Column(nullable = false)
+    private Boolean received;
+
     @OneToMany(mappedBy = "receipt", cascade = CascadeType.ALL, orphanRemoval = true)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -59,6 +65,7 @@ public class Receipt {
                 .append("openTime", openTime)
                 .append("closeTime", closeTime)
                 .append("receiptStatus", receiptStatus)
+                .append("received", received)
                 .append("staff", staff)
                 .append("bonusCard", bonusCard)
                 .append("totalSum", totalSum)
