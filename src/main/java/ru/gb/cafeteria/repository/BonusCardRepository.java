@@ -17,4 +17,6 @@ public interface BonusCardRepository extends JpaRepository<BonusCard, Long> {
     boolean existsByClientPhone(String clientPhone);
 
     Page<BonusCard> findByClientPhoneContaining(String phone, Pageable pageable);
+
+    long countByDiscountType_DiscountId(Long id);
 }

@@ -22,7 +22,14 @@
 <div th:replace="~{fragments/header :: header-bar}"></div>
 
 <div class="container mt-2">
-    <h2 class="text-center mb-4"><a th:href="@{/manager/menu}">Меню</a> Финансы <a th:href="@{/manager/staff}">Персонал</a></h2>
+
+    <h2 class="text-center mb-4">
+        <a th:href="@{/manager/menu}">Меню</a> &nbsp&nbsp&nbsp
+        Финансы &nbsp&nbsp&nbsp
+        <a th:href="@{/manager/staff}">Персонал</a> &nbsp&nbsp&nbsp
+        <a th:href="@{/manager/bonus}">Скидки</a>
+    </h2>
+
     <form th:action="@{/manager/receipts}" method="get" class="form-inline mb-4">
         <div class="form-group mr-2">
             <label for="startDate" class="mr-2">Начало</label>
@@ -46,7 +53,9 @@
            class="btn btn-secondary">СБРОСИТЬ</a> &nbsp&nbsp
         <button type="submit" class="btn btn-primary mr-2">ПОИСК</button>
     </form>
-    <table class="table table-striped table-bordered">
+
+
+    <table class="table table-striped table-bordered" style="width: 100%; justify-content: center;">
         <thead>
         <tr>
             <th>ID</th>
@@ -60,6 +69,7 @@
             <th></th>
         </tr>
         </thead>
+
         <tbody>
         <tr th:each="receipt : ${receipts}">
             <td th:text="${receipt.receiptId}"></td>
@@ -78,6 +88,7 @@
             </td>
         </tr>
         </tbody>
+
         <tfoot>
         <tr>
             <td colspan="4" class="text-right"><strong>Итог:</strong></td>
@@ -88,6 +99,8 @@
         </tr>
         </tfoot>
     </table>
+
+
 </div>
 </body>
 </html>

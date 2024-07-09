@@ -1,10 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Менеджер: управление скидками</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 
+<div th:replace="~{fragments/header :: header-bar}"></div>
+
+<div class="container mt-2">
+
+    <h2 class="text-center mb-4">
+        <a th:href="@{/manager/menu}">Меню</a> &nbsp&nbsp&nbsp
+        <a th:href="@{/manager/receipts}">Финансы</a> &nbsp&nbsp&nbsp
+        <a th:href="@{/manager/staff}">Персонал</a> &nbsp&nbsp&nbsp
+        Скидки
+    </h2>
+
+    <div class="d-flex justify-content-end mb-3">
+        <a class="btn btn-primary" th:href="@{/manager/bonus/add}">СОЗДАТЬ</a>
+    </div>
+    <div class="row">
+        <div class="col-md-4 mb-4" th:each="discount : ${discounts}">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h3 class="card-title mb-1" th:text="${discount.discountName}">Discount Name</h3>
+                    <p class="card-text mb-1"><span th:text="${discount.description}">Description</span></p>
+                    <p class="card-text mb-1"><strong>Скидка:</strong> <span th:text="${discount.discountPercent}">Percent</span></p>
+                    <p class="card-text mb-1"><strong>Условие:</strong> <span th:text="'Сумма покупок от ' + ${discount.minSum} + ' до ' + ${discount.maxSum}">Условия</span></p>
+                    <p class="card-text mb-1"><span th:text="${discount.active ? '&#9989; Действует' : '&#10060; Неактивна'}">Active</span></p>
+                </div>
+                <div class="card-footer d-flex justify-content-end">
+                    <a th:href="@{'/manager/bonus/edit/' + ${discount.discountId}}" class="btn btn-warning mr-2">ИЗМЕНИТЬ</a>
+
+                    <!-- Кнопка "БЛОКИРОВАТЬ" -->
+                    <form th:if="${discount.active}" th:action="@{/manager/bonus/inactivate}" method="post" class="d-inline">
+                        <input type="hidden" name="id" th:value="${discount.discountId}"/>
+                        <button type="submit" class="btn btn-danger">Блокировать</button>
+                    </form>
+
+                    <!-- Кнопка "АКТИВИРОВАТЬ" -->
+                    <form th:if="${!discount.active}" th:action="@{/manager/bonus/activate}" method="post" class="d-inline">
+                        <input type="hidden" name="id" th:value="${discount.discountId}"/>
+                        <button type="submit" class="btn btn-success">Активировать</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

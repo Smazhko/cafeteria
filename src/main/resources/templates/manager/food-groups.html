@@ -1,137 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Группы продуктов</title>
+    <title>Менеджер: Меню - Разделы</title>
     <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Инициализация кнопки "Создать"
-            $("#addGroupModal").on("show.bs.modal", function(event) {
-                var modal = $(this);
-                modal.find(".modal-title").text("Введите название группы");
-                modal.find("#saveButton").text("Создать");
-            });
-
-            // Инициализация кнопки "Изменить"
-            $("#editGroupModal").on("show.bs.modal", function(event) {
-                var button = $(event.relatedTarget);
-                var groupId = button.data("id");
-                var groupName = button.data("name");
-                var groupPosition = button.data("position");
-                var groupNameWithCount = button.data("name");
-
-                // Извлечение чистого названия группы без количества блюд
-
-                var modal = $(this);
-                modal.find(".modal-title").text("Переименовать группу");
-                modal.find("#groupName").val(groupName);
-                modal.find("#groupId").val(groupId);
-                modal.find("#groupPosition").val(groupPosition);
-                modal.find("#saveButton").text("Сохранить");
-            });
-
-            // Обработчик кнопки "Вверх"
-            $(".move-up").click(function() {
-                var groupId = $(".group-item.selected").data("id");
-                if (groupId) {
-                    $.post("/manager/food-groups/move-up/" + groupId, function() {
-                        // Сохранение выбранного элемента перед перезагрузкой
-                        localStorage.setItem('selectedGroupId', groupId);
-                        location.reload();
-                    });
-                }
-            });
-
-            // Обработчик кнопки "Вниз"
-            $(".move-down").click(function() {
-                var groupId = $(".group-item.selected").data("id");
-                if (groupId) {
-                    $.post("/manager/food-groups/move-down/" + groupId, function() {
-                        // Сохранение выбранного элемента перед перезагрузкой
-                        localStorage.setItem('selectedGroupId', groupId);
-                        location.reload();
-                    });
-                }
-            });
-
-            // Обработчик выбора элемента списка
-            $(".group-item").click(function() {
-                $(".group-item").removeClass("selected");
-                $(this).addClass("selected");
-                var groupId = $(this).data("id");
-                var groupName = $(this).data("name");
-                var groupPosition = $(this).data("position");
-                var groupNameWithCount = $(this).text();
-
-                $("#editButton").data("id", groupId);
-                $("#editButton").data("name", groupName);
-                $("#editButton").data("position", groupPosition);
-                // Сохранение выбранного элемента в localStorage
-                localStorage.setItem('selectedGroupId', groupId);
-                $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
-            });
-
-            // Восстановление выбранного элемента при загрузке страницы
-            var selectedGroupId = localStorage.getItem('selectedGroupId');
-            if (selectedGroupId) {
-                var selectedItem = $(".group-item[data-id='" + selectedGroupId + "']");
-                if (selectedItem.length > 0) {
-                    $(".group-item").removeClass("selected");
-                    selectedItem.addClass("selected");
-                    var groupId = selectedItem.data("id");
-                    var groupName = selectedItem.data("name");
-                    var groupPosition = selectedItem.data("position");
-                    var groupNameWithCount = selectedItem.text();
-
-                    $("#editButton").data("id", groupId);
-                    $("#editButton").data("name", groupName);
-                    $("#editButton").data("position", groupPosition);
-                    $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
-                }
-            } else {
-                // Инициализация кнопки "Изменить" данными первой группы при загрузке страницы
-                var firstGroup = $(".group-item.selected");
-                if (firstGroup.length > 0) {
-                    var groupId = firstGroup.data("id");
-                    var groupName = firstGroup.data("name");
-                    var groupPosition = firstGroup.data("position");
-                    var groupNameWithCount = firstGroup.text();
-
-                    $("#editButton").data("id", groupId);
-                    $("#editButton").data("name", groupName);
-                    $("#editButton").data("position", groupPosition);
-                    $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
-                }
-            }
-
-            // Обработчик кнопки "Удалить"
-            $("#deleteButton").click(function() {
-                var groupId = $(this).data("id");
-                if (groupId) {
-                    $.post("/manager/food-groups/delete/" + groupId, function() {
-                        localStorage.removeItem('selectedGroupId'); // Очистка сохраненного элемента после удаления
-                        location.reload();
-                    });
-                }
-            });
-
-            // Показ сообщения об ошибке, если оно есть
-            var errorMessage = /*[[${errorMessage}]]*/ '';
-            if (errorMessage !== '') {
-                $('#errorModal').modal('show');
-            }
-        });
-    </script>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header-bar}"></div>
 
 <div class="container mt-2">
-    <h2 class="text-center mb-2">Меню: архив</h2>
+    <h2 class="text-center mb-2">Меню: разделы</h2>
 
     <br>
 
@@ -260,5 +139,126 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Инициализация кнопки "Создать"
+        $("#addGroupModal").on("show.bs.modal", function(event) {
+            var modal = $(this);
+            modal.find(".modal-title").text("Введите название группы");
+            modal.find("#saveButton").text("Создать");
+        });
+
+        // Инициализация кнопки "Изменить"
+        $("#editGroupModal").on("show.bs.modal", function(event) {
+            var button = $(event.relatedTarget);
+            var groupId = button.data("id");
+            var groupName = button.data("name");
+            var groupPosition = button.data("position");
+            var groupNameWithCount = button.data("name");
+
+            // Извлечение чистого названия группы без количества блюд
+
+            var modal = $(this);
+            modal.find(".modal-title").text("Переименовать группу");
+            modal.find("#groupName").val(groupName);
+            modal.find("#groupId").val(groupId);
+            modal.find("#groupPosition").val(groupPosition);
+            modal.find("#saveButton").text("Сохранить");
+        });
+
+        // Обработчик кнопки "Вверх"
+        $(".move-up").click(function() {
+            var groupId = $(".group-item.selected").data("id");
+            if (groupId) {
+                $.post("/manager/food-groups/move-up/" + groupId, function() {
+                    // Сохранение выбранного элемента перед перезагрузкой
+                    localStorage.setItem('selectedGroupId', groupId);
+                    location.reload();
+                });
+            }
+        });
+
+        // Обработчик кнопки "Вниз"
+        $(".move-down").click(function() {
+            var groupId = $(".group-item.selected").data("id");
+            if (groupId) {
+                $.post("/manager/food-groups/move-down/" + groupId, function() {
+                    // Сохранение выбранного элемента перед перезагрузкой
+                    localStorage.setItem('selectedGroupId', groupId);
+                    location.reload();
+                });
+            }
+        });
+
+        // Обработчик выбора элемента списка
+        $(".group-item").click(function() {
+            $(".group-item").removeClass("selected");
+            $(this).addClass("selected");
+            var groupId = $(this).data("id");
+            var groupName = $(this).data("name");
+            var groupPosition = $(this).data("position");
+            var groupNameWithCount = $(this).text();
+
+            $("#editButton").data("id", groupId);
+            $("#editButton").data("name", groupName);
+            $("#editButton").data("position", groupPosition);
+            // Сохранение выбранного элемента в localStorage
+            localStorage.setItem('selectedGroupId', groupId);
+            $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
+        });
+
+        // Восстановление выбранного элемента при загрузке страницы
+        var selectedGroupId = localStorage.getItem('selectedGroupId');
+        if (selectedGroupId) {
+            var selectedItem = $(".group-item[data-id='" + selectedGroupId + "']");
+            if (selectedItem.length > 0) {
+                $(".group-item").removeClass("selected");
+                selectedItem.addClass("selected");
+                var groupId = selectedItem.data("id");
+                var groupName = selectedItem.data("name");
+                var groupPosition = selectedItem.data("position");
+                var groupNameWithCount = selectedItem.text();
+
+                $("#editButton").data("id", groupId);
+                $("#editButton").data("name", groupName);
+                $("#editButton").data("position", groupPosition);
+                $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
+            }
+        } else {
+            // Инициализация кнопки "Изменить" данными первой группы при загрузке страницы
+            var firstGroup = $(".group-item.selected");
+            if (firstGroup.length > 0) {
+                var groupId = firstGroup.data("id");
+                var groupName = firstGroup.data("name");
+                var groupPosition = firstGroup.data("position");
+                var groupNameWithCount = firstGroup.text();
+
+                $("#editButton").data("id", groupId);
+                $("#editButton").data("name", groupName);
+                $("#editButton").data("position", groupPosition);
+                $("#deleteButton").data("id", groupId); // Инициализация кнопки "Удалить"
+            }
+        }
+
+        // Обработчик кнопки "Удалить"
+        $("#deleteButton").click(function() {
+            var groupId = $(this).data("id");
+            if (groupId) {
+                $.post("/manager/food-groups/delete/" + groupId, function() {
+                    localStorage.removeItem('selectedGroupId'); // Очистка сохраненного элемента после удаления
+                    location.reload();
+                });
+            }
+        });
+
+        // Показ сообщения об ошибке, если оно есть
+        var errorMessage = /*[[${errorMessage}]]*/ '';
+        if (errorMessage !== '') {
+            $('#errorModal').modal('show');
+        }
+    });
+</script>
 </body>
 </html>

@@ -136,7 +136,7 @@
             </tr>
             <tr>
                 <td colspan="3">Скидка:</td>
-                <td th:text="${receipt.discountSum}">0.00</td>
+                <td id="discount-sum" th:text="${receipt.discountSum}">0.00</td>
             </tr>
             <tr>
                 <td colspan="3">Итоговая сумма:</td>
@@ -158,12 +158,34 @@
                     <button type="submit" class="btn-receipt btn btn-primary">ИЗМЕНИТЬ</button>
                 </form>
             </div>
-            <form th:action="@{'/cashier/receipt/pay/' + ${receipt.receiptId}}" method="post" style="width:370px;">
+            <form th:action="@{'/cashier/receipt/pay/' + ${receipt.receiptId}}" method="post" id="pay-form"
+                  style="width:370px;">
                 <input type="hidden" name="cardId" th:value="${bonusCard != null ? bonusCard.cardId : ''}">
-                <button type="submit" class="btn btn-success btn-block">ОПЛАТИТЬ</button>
+                <button type="button" class="btn btn-success btn-block" onclick="confirmPayment()">ОПЛАТИТЬ</button>
             </form>
         </div>
+    </div>
+</div>
 
+<!-- Модальное окно -->
+<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel">Подтверждение оплаты</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Оплатить чек без скидки?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">НЕТ</button>
+                <button type="button" class="btn btn-primary" onclick="submitPayment()">ДА</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -177,8 +199,8 @@
             $.ajax({
                 url: '/cashier/receipt/search',
                 type: 'GET',
-                data: { search: searchInput },
-                success: function(response) {
+                data: {search: searchInput},
+                success: function (response) {
                     const resultsDiv = document.getElementById('search-results');
                     resultsDiv.innerHTML = '';
                     if (response.length > 0) {
@@ -194,7 +216,7 @@
                         resultsDiv.style.display = 'none';
                     }
                 },
-                error: function(error) {
+                error: function (error) {
                     console.log('search error', error);
                 }
             });
@@ -228,6 +250,19 @@
             event.preventDefault();
             checkSearchInput();
         }
+    }
+
+    function confirmPayment() {
+        const discountSum = parseFloat(document.getElementById('discount-sum').innerText);
+        if (discountSum === 0) {
+            $('#confirmModal').modal('show');
+        } else {
+            document.getElementById('pay-form').submit();
+        }
+    }
+
+    function submitPayment() {
+        document.getElementById('pay-form').submit();
     }
 </script>
 </body>

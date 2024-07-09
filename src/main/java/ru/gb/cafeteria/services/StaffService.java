@@ -68,9 +68,13 @@ public class StaffService {
                 .collect(Collectors.toList());
     }
 
+    // получаем все роли для редактирования персонала. роли НЕперсонала исключаем
     public List<Role> getAllRoles() {
-        return roleRepo.findAll();
+        return roleRepo.findAll().stream()
+                .filter(role -> !role.getName().equals("ROLE_ADMIN") && !role.getName().equals("ROLE_CLIENT"))
+                .collect(Collectors.toList());
     }
+
 
     public Staff getStaffById(Long id) {
         return staffRepo.findById(id).orElseThrow();

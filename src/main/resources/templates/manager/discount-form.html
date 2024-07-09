@@ -5,66 +5,87 @@
     <title>Форма скидки</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .form-group-inline {
+            display: flex;
+            align-items: center;
+        }
+        .form-group-inline label {
+            margin-right: 10px;
+            min-width: 120px;
+        }
+        .form-group-inline input,
+        .form-group-inline textarea {
+            flex: 1;
+        }
+        .number-input {
+            max-width: 150px;
+        }
+    </style>
 </head>
 <body>
 
 <div th:replace="~{fragments/header :: header-bar}"></div>
 
 <div class="container mt-2">
-    <h2 class="text-center mb-4" th:text="${discount.discountId == null ? 'Добавить скидку' : 'Редактировать скидку'}">Форма скидки</h2>
+    <h2 class="text-center mb-4"
+        th:text="${discount.discountId == null ? 'Добавить новую скидку' : 'Редактировать скидку'}">Форма скидки</h2>
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <form th:action="@{/manager/bonus/add}" th:if="${discount.discountId == null}" method="post">
-                <div class="form-group">
+
+            <!-- ФОРМА ДЛЯ РЕДАКТИРОВАНИЯ И ДОБАВЛЕНИЯ СКИДОК -->
+            <form th:action="@{/manager/bonus/save}" th:object="${discount}" method="post" onsubmit="return validateForm()">
+                <input type="hidden" th:field="*{discountId}">
+                <div class="form-group form-group-inline">
                     <label for="discountName">Наименование</label>
-                    <input type="text" class="form-control" id="discountName" name="discountName" th:value="${discount.discountName}" required>
+                    <input type="text" id="discountName" class="form-control" th:field="*{discountName}" required>
                 </div>
-                <div class="form-group">
+                <div class="form-group form-group-inline">
                     <label for="description">Описание</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" th:text="${discount.description}" required></textarea>
+                    <textarea id="description" class="form-control" th:field="*{description}" rows="3"
+                              required></textarea>
+                </div>
+                <div class="form-group form-group-inline">
+                    <label for="discountPercent">Скидка, %</label>
+                    <input type="number" id="discountPercent" class="form-control number-input"
+                           th:field="*{discountPercent}" min="1" max="100" required>
                 </div>
                 <div class="form-group">
                     <label>Условия действия:</label>
                     <div class="d-flex align-items-center">
                         <span>Сумма покупок от</span>
-                        <input type="number" class="form-control mx-2" id="minSum" name="minSum" th:value="${discount.minSum}" required>
+                        <input type="number" class="form-control mx-2 number-input" th:field="*{minSum}" id="minSum" min="0"
+                               max="99999999" required>
                         <span>до</span>
-                        <input type="number" class="form-control mx-2" id="maxSum" name="maxSum" th:value="${discount.maxSum}" required>
+                        <input type="number" class="form-control mx-2 number-input" th:field="*{maxSum}" id="maxSum" min="0"
+                               max="99999999" required>
                     </div>
                 </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" id="active" name="active" th:checked="${discount.active}">
-                    <label class="form-check-label" for="active">Действует</label>
+                <div class="form-group">
+                    <label for="active">Действует</label>
+                    <input type="checkbox" id="active" th:field="*{active}">
                 </div>
-                <button type="submit" class="btn btn-primary">СОХРАНИТЬ</button>
-                <a th:href="@{/manager/bonus}" class="btn btn-secondary">ОТМЕНИТЬ</a>
+                <div style="display: flex; flex-direction: row; justify-content: flex-end; gap: 16px;">
+                    <button type="submit" class="btn btn-danger"
+                            th:if="${discount.discountId != null and isDeletePossible}"
+                            th:formaction="@{/manager/bonus/delete/{id}(id=${discount.discountId})}">УДАЛИТЬ
+                    </button>
+                    <button type="submit" class="btn btn-primary">СОХРАНИТЬ</button>
+                    <a th:href="@{/manager/bonus}" class="btn btn-secondary">ОТМЕНИТЬ</a>
+                </div>
             </form>
-            <form th:action="@{/manager/bonus/edit}" th:if="${discount.discountId != null}" method="post">
-                <input type="hidden" name="discountId" th:value="${discount.discountId}">
-                <div class="form-group">
-                    <label for="discountName">Наименование</label>
-                    <input type="text" class="form-control" id="discountName" name="discountName" th:value="${discount.discountName}" required>
-                </div>
-                <div class="form-group">
-                    <label for="description">Описание</label>
-                    <textarea class="form-control" id="description" name="description" rows="3" th:text="${discount.description}" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label>Условия действия:</label>
-                    <div class="d-flex align-items-center">
-                        <span>Сумма покупок от</span>
-                        <input type="number" class="form-control mx-2" id="minSum" name="minSum" th:value="${discount.minSum}" required>
-                        <span>до</span>
-                        <input type="number" class="form-control mx-2" id="maxSum" name="maxSum" th:value="${discount.maxSum}" required>
-                    </div>
-                </div>
-                <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" id="active" name="active" th:checked="${discount.active}">
-                    <label class="form-check-label" for="active">Действует</label>
-                </div>
-                <button type="submit" class="btn btn-primary">СОХРАНИТЬ</button>
-                <a th:href="@{/manager/bonus}" class="btn btn-secondary">ОТМЕНИТЬ</a>
-            </form>
+
+            <div class="alert alert-warning mt-4" style="text-align: justify; padding: 10px 24px;">
+                <p>ВАЖНО!</p>
+                <ul>
+                    <li>Процент скидки может быть в диапазоне от 1 до 100</li>
+                    <li>Диапазон в поле "Сумма покупок" должен быть корректно указан - второе число должно быть больше первого</li>
+                    <li>Диапазон в поле "Сумма покупок" должен быть согласован с другими Дисконтами для корректной работы</li>
+                    <li>Удалить Дисконт можно только в случае, если к нему не привязана ни одна клиентская карточка.</li>
+                </ul>
+            </div>
+
+
         </div>
     </div>
 </div>
@@ -72,5 +93,18 @@
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.6.0/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    function validateForm() {
+        const minSum = parseFloat(document.getElementById('minSum').value);
+        const maxSum = parseFloat(document.getElementById('maxSum').value);
+
+        if (maxSum <= minSum) {
+            alert('Введите корректный диапазон в поле СУММА ПОКУПОК.');
+            return false;
+        }
+
+        return true;
+    }
+</script>
 </body>
 </html>

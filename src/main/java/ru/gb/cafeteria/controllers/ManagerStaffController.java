@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import ru.gb.cafeteria.domain.Staff;
 import ru.gb.cafeteria.security.domain.Role;
 import ru.gb.cafeteria.security.domain.User;
-import ru.gb.cafeteria.security.services.RoleService;
 import ru.gb.cafeteria.services.StaffService;
 
 import java.time.LocalDate;
@@ -23,7 +22,6 @@ import java.util.Map;
 @AllArgsConstructor
 public class ManagerStaffController {
 
-    private final RoleService roleService;
     private final StaffService staffService;
 
 
