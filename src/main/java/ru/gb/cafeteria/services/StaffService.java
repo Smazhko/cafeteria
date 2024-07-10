@@ -110,13 +110,11 @@ public class StaffService {
         existingStaff.setPost(staff.getPost());
         existingStaff.setSalary(staff.getSalary());
         existingStaff.setDateBegin(staff.getDateBegin());
-        if (staff.getDateEnd() != null) {
-            existingStaff.setDateEnd(staff.getDateEnd());
-            if (LocalDate.now().isAfter(staff.getDateEnd())) {
-                user.setEnabled(false);
-            } else {
-                user.setEnabled(true);
-            }
+        existingStaff.setDateEnd(staff.getDateEnd());
+        if (staff.getDateEnd() != null && LocalDate.now().isAfter(staff.getDateEnd())) {
+            user.setEnabled(false);
+        } else {
+            user.setEnabled(true);
         }
         existingStaff.setUser(user);
         staffRepo.save(existingStaff);
