@@ -6,6 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.gb.cafeteria.domain.Staff;
 import ru.gb.cafeteria.security.domain.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -40,5 +41,7 @@ public class MyUserDetails implements UserDetails {
     public boolean isCredentialsNonExpired() {return true; }
 
     @Override
-    public boolean isEnabled() { return user.getEnabled(); }
+    public boolean isEnabled() { // Проверка, что аккаунт действителен до даты увольнения
+        LocalDate dateEnd = user.getStaff().getDateEnd();
+        return user.getEnabled() && (dateEnd == null || !LocalDate.now().isAfter(dateEnd)); }
 }

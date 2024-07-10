@@ -2,6 +2,7 @@ package ru.gb.cafeteria.controllers;
 
 import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -126,6 +127,12 @@ public class CashierReceiptController {
         model.addAttribute("bonusCard", createdCard);
         model.addAttribute("searchIsEmpty", false);
         return "cashier/receipt";
+    }
+
+    @GetMapping("/check-phone")
+    public ResponseEntity<Boolean> checkPhone(@RequestParam String phone) {
+        boolean exists = bonusCardService.existsByClientPhone(phone);
+        return ResponseEntity.ok(exists);
     }
 
 }

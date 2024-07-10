@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.gb.cafeteria.aspects.TrackUserAction;
 import ru.gb.cafeteria.domain.Staff;
 import ru.gb.cafeteria.security.domain.Role;
 import ru.gb.cafeteria.security.domain.User;
@@ -86,6 +87,7 @@ public class ManagerStaffController {
         return "redirect:/manager/staff";
     }
 
+    @TrackUserAction
     @GetMapping("/update/{staffId}")
     public String editStaffForm(@PathVariable Long staffId, Model model) {
         Staff staff = staffService.getStaffById(staffId);
@@ -98,16 +100,13 @@ public class ManagerStaffController {
 
     @PostMapping("/update")
     public String editStaff(@ModelAttribute Staff staff, @RequestParam String username, @RequestParam(required = false) String password, @RequestParam Long roleId) {
-        System.out.println("staff " + staff);
-        System.out.println("username " + username);
-        System.out.println("password " + password);
-        System.out.println("roleId " + roleId);
 
         staffService.updateStaffDetails(staff, username, password, roleId);
 
         return "redirect:/manager/staff";
     }
 
+    @TrackUserAction
     @GetMapping("/check-username")
     public ResponseEntity<Map<String, Boolean>> checkUsername(@RequestParam String username) {
         boolean exists = staffService.usernameExists(username);

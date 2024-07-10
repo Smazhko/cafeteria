@@ -53,6 +53,7 @@ public class BonusCardService {
         BonusCard card = cardRepo.findById(cardId).orElseThrow();
         BigDecimal totalSum = card.getTotalSum();
         DiscountType applicableDiscount = discountRepo.findAll().stream()
+                .filter(DiscountType::getActive)
                 .filter(discount -> discount.getMinSum().compareTo(totalSum) <= 0 &&
                         discount.getMaxSum().compareTo(totalSum) > 0)
                 .findFirst()
@@ -68,6 +69,7 @@ public class BonusCardService {
             newCard.setTotalSum(BigDecimal.ZERO);
             // установка бонусной карты, подходящей на сумму накоплений, равной нулю
             DiscountType applicableDiscount = discountRepo.findAll().stream()
+                    .filter(DiscountType::getActive)
                     .filter(discount -> discount.getMinSum().compareTo(BigDecimal.ZERO) <= 0 &&
                             discount.getMaxSum().compareTo(BigDecimal.ZERO) > 0)
                     .findFirst()

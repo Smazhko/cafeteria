@@ -179,6 +179,13 @@ textarea {
     cursor: pointer;
 }
 
+.staff-active {
+    background-color: #ffffff;
+}
+.staff-inactive {
+    background-color: #cccccc;
+}
+
 /* HEADER */
 
 .header-bar {

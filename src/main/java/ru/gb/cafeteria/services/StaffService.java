@@ -93,6 +93,8 @@ public class StaffService {
         return userRepo.save(user);
     }
 
+    // обновляем данные по сотруднику.
+    // а также по его аккаунту. если выставили дату увольнения, то аккаунт деактивируется, чтоб по нему нельзя было зайти
     public void updateStaffDetails(Staff staff, String username, String password, Long roleId) {
         Staff existingStaff = staffRepo.findById(staff.getStaffId()).orElseThrow();
         User user = existingStaff.getUser();
@@ -108,7 +110,14 @@ public class StaffService {
         existingStaff.setPost(staff.getPost());
         existingStaff.setSalary(staff.getSalary());
         existingStaff.setDateBegin(staff.getDateBegin());
-        existingStaff.setDateEnd(staff.getDateEnd());
+        if (staff.getDateEnd() != null) {
+            existingStaff.setDateEnd(staff.getDateEnd());
+            if (LocalDate.now().isAfter(staff.getDateEnd())) {
+                user.setEnabled(false);
+            } else {
+                user.setEnabled(true);
+            }
+        }
         existingStaff.setUser(user);
         staffRepo.save(existingStaff);
     }

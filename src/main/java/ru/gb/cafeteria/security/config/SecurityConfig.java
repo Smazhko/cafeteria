@@ -58,7 +58,7 @@ public class SecurityConfig {
     }
 
     // БИН кодировщика паролей
-	// Ставим степень кодировки, с которой кодировали пароль в базе
+	// Ставим степень кодировки, с которой кодировали пароль в базе - 5
 	@Bean
 	public PasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder(5);

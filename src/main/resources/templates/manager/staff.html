@@ -31,9 +31,9 @@
     </div>
 
     <div class="row">
-        <div class="col-md-4 mb-4" th:each="staff : ${staffList}">
+        <div class="col-md-4 mb-4" th:each="staff : ${staffList}" >
             <div class="card h-100">
-                <div class="card-body">
+                <div class="card-body" th:classappend="${staff.dateEnd != null ? 'staff-inactive' : 'staff-active'}">
                     <h5 class="card-title mb-1" th:text="${staff.name}">Имя</h5>
                     <p class="card-text mb-1"><strong>Телефон:</strong> <span th:text="${staff.phone}"></span></p>
                     <p class="card-text mb-1"><strong>Должность:</strong> <span th:text="${staff.post}"></span></p>
@@ -48,13 +48,15 @@
                     <a th:href="@{'/manager/staff/update/' + ${staff.staffId}}" class="btn btn-warning">Редактировать</a>
 
                     <!-- Кнопка "Уволить" -->
-                    <form th:if="${staff.dateEnd == null and staff.user.role.name != 'ROLE_MANAGER' and staff.user.role.name != 'ROLE_ADMIN'}" th:action="@{/manager/staff/inactivate}" method="post" class="d-inline">
+                    <form th:if="${staff.dateEnd == null and staff.user.role.name != 'ROLE_MANAGER' and staff.user.role.name != 'ROLE_ADMIN'}"
+                          th:action="@{/manager/staff/inactivate}" method="post" class="d-inline">
                         <input type="hidden" name="staffId" th:value="${staff.staffId}"/>
                         <button type="button" class="btn btn-danger" th:onclick="'confirmInactivation(' + ${staff.staffId} + ', this.form)'">Уволить</button>
                     </form>
 
                     <!-- Кнопка "Принять" -->
-                    <form th:if="${staff.dateEnd != null and staff.user.role.name != 'ROLE_MANAGER' and staff.user.role.name != 'ROLE_ADMIN'}" th:action="@{/manager/staff/reactivate}" method="post" class="d-inline">
+                    <form th:if="${staff.dateEnd != null and staff.user.role.name != 'ROLE_MANAGER' and staff.user.role.name != 'ROLE_ADMIN'}"
+                          th:action="@{/manager/staff/reactivate}" method="post" class="d-inline">
                         <input type="hidden" name="staffId" th:value="${staff.staffId}"/>
                         <button type="button" class="btn btn-success" th:onclick="'confirmReactivation(' + ${staff.staffId} + ', this.form)'">Принять</button>
                     </form>

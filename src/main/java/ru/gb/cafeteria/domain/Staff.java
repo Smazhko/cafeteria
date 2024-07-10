@@ -46,7 +46,6 @@ public class Staff {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("staffId", staffId)
-                .append("user", user.getUsername())
                 .append("name", name)
                 .append("post", post)
                 .append("phone", phone)

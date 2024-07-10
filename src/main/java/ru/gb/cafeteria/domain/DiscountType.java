@@ -21,7 +21,7 @@ public class DiscountType {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "discount_percent")
+    @Column(name = "discount_percent", nullable = false)
     private Integer discountPercent;
 
     @Column(name = "min_sum", nullable = false, precision = 10, scale = 2)

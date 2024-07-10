@@ -26,7 +26,7 @@
               onsubmit="return false;">
             <label for="search" class="mr-2">ПОИСК:</label>
             <div class="position-relative">
-                <input type="text" id="search" name="search" th:value="${bonusSearch}" oninput="checkSearchInput()"
+                <input type="number" id="search" name="search" th:value="${bonusSearch}" oninput="checkSearchInput()"
                        onkeydown="return handleKeyDown(event)"
                        class="form-control mr-2" style="width: 250px;"/>
                 <!-- Выпадающий список результатов поиска -->
@@ -39,7 +39,7 @@
             <button type="button" onclick="window.location.href='/cashier/receipt/reset-search'"
                     class="btn btn-secondary btn-sm ml-2">СБРОСИТЬ
             </button>
-            <button type="button" onclick="showCreateForm()" class="btn btn-success btn-sm ml-2">СОЗДАТЬ</button>
+            <button type="button" id="create-new-card-button" onclick="showCreateForm()" class="btn btn-success btn-sm ml-2" style="display: none;">СОЗДАТЬ</button>
         </form>
 
         <!-- Информация о найденной бонусной карте -->
@@ -93,13 +93,19 @@
             <h5>Создание новой бонусной карты</h5>
             <form th:action="@{/cashier/receipt/create-card}" method="post">
                 <input type="hidden" name="receiptId" th:value="${receipt.receiptId}">
+<!--                поле ввода телефона клиента с проверкой - существует ли номер в БД-->
                 <div class="form-group row">
                     <label for="clientPhone" class="col-sm-2 col-form-label">Телефон:</label>
                     <div class="col-sm-10">
                         <input type="text" class="form-control" id="clientPhone" name="clientPhone"
-                               th:value="${bonusSearch}" required>
+                               th:value="${bonusSearch}" oninput="validatePhone()" required>
+                        <div class="invalid-feedback" id="phone-feedback" style="display: none;">
+                            Этот номер телефона уже используется.
+                        </div>
                     </div>
                 </div>
+
+
                 <div class="form-group row">
                     <label for="clientName" class="col-sm-2 col-form-label">Имя:</label>
                     <div class="col-sm-10">
@@ -112,7 +118,7 @@
                         <input type="email" class="form-control" id="clientEmail" name="clientEmail">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success">Создать и применить</button>
+                <button type="submit" id="create-button" class="btn btn-success">Создать и применить</button>
             </form>
         </div>
     </div>
@@ -194,6 +200,7 @@
 <script>
     function checkSearchInput() {
         const searchInput = document.getElementById('search').value.trim();
+        const createButton = document.getElementById('create-new-card-button');
 
         if (searchInput.length >= 2) {
             $.ajax({
@@ -212,8 +219,10 @@
                             resultsDiv.appendChild(a);
                         });
                         resultsDiv.style.display = 'block';
+                        createButton.style.display = 'none';
                     } else {
                         resultsDiv.style.display = 'none';
+                        createButton.style.display = 'inline-block';
                     }
                 },
                 error: function (error) {
@@ -222,48 +231,81 @@
             });
         } else {
             document.getElementById('search-results').style.display = 'none';
+            createButton.style.display = 'none';
         }
     }
 
-    function highlightMatch(text, search) {
-        const index = text.toLowerCase().indexOf(search.toLowerCase());
-        if (index >= 0) {
-            return text.substring(0, index) + '<span style="color:red;">' + text.substring(index, index + search.length) + '</span>' + text.substring(index + search.length);
+
+        function highlightMatch(text, search) {
+            const index = text.toLowerCase().indexOf(search.toLowerCase());
+            if (index >= 0) {
+                return text.substring(0, index) + '<span style="color:red;">' + text.substring(index, index + search.length) + '</span>' + text.substring(index + search.length);
+            }
+            return text;
         }
-        return text;
-    }
 
-    function fillSearch(phone) {
-        document.getElementById('search').value = phone;
-        document.getElementById('search-results').style.display = 'none';
-        document.getElementById('bonus-card-info').style.display = 'block';
-    }
-
-    function showCreateForm() {
-        const searchInput = document.getElementById('search').value.trim();
-        document.getElementById('clientPhone').value = searchInput;
-        document.getElementById('create-bonus-card').style.display = 'block';
-    }
-
-    function handleKeyDown(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            checkSearchInput();
+        function fillSearch(phone) {
+            document.getElementById('search').value = phone;
+            document.getElementById('search-results').style.display = 'none';
+            document.getElementById('bonus-card-info').style.display = 'block';
         }
-    }
 
-    function confirmPayment() {
-        const discountSum = parseFloat(document.getElementById('discount-sum').innerText);
-        if (discountSum === 0) {
-            $('#confirmModal').modal('show');
+        function showCreateForm() {
+            const searchInput = document.getElementById('search').value.trim();
+            document.getElementById('clientPhone').value = searchInput;
+            document.getElementById('create-bonus-card').style.display = 'block';
+        }
+
+        function handleKeyDown(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkSearchInput();
+            }
+        }
+
+    function validatePhone() {
+        const phone = document.getElementById('clientPhone').value.trim();
+        const createButton = document.getElementById('create-button');
+
+        if (phone.length >= 2) {
+            $.ajax({
+                url: '/cashier/receipt/check-phone',
+                type: 'GET',
+                data: {phone: phone},
+                success: function (exists) {
+                    const feedback = document.getElementById('phone-feedback');
+                    if (exists) {
+                        feedback.style.display = 'block';
+                        document.getElementById('clientPhone').classList.add('is-invalid');
+                        createButton.disabled = true;
+                    } else {
+                        feedback.style.display = 'none';
+                        document.getElementById('clientPhone').classList.remove('is-invalid');
+                        createButton.disabled = false;
+                    }
+                },
+                error: function (error) {
+                    console.log('phone check error', error);
+                    createButton.disabled = false; // Enable button in case of error
+                }
+            });
         } else {
+            createButton.disabled = false; // Enable button for shorter phone numbers
+        }
+    }
+
+        function confirmPayment() {
+            const discountSum = parseFloat(document.getElementById('discount-sum').innerText);
+            if (discountSum === 0) {
+                $('#confirmModal').modal('show');
+            } else {
+                document.getElementById('pay-form').submit();
+            }
+        }
+
+        function submitPayment() {
             document.getElementById('pay-form').submit();
         }
-    }
-
-    function submitPayment() {
-        document.getElementById('pay-form').submit();
-    }
 </script>
 </body>
 </html>

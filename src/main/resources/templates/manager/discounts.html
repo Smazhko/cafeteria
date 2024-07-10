@@ -19,8 +19,13 @@
         Скидки
     </h2>
 
-    <div class="d-flex justify-content-end mb-3">
-        <a class="btn btn-primary" th:href="@{/manager/bonus/add}">СОЗДАТЬ</a>
+    <div class="d-flex mb-3" style="justify-content: space-between; align-items: center;">
+        <div class="alert alert-info info-alert mt-1" style="padding: 10px 10px 0 10px;">
+            <p>Для корректной работы создавайте линейку дисконтов, которая будет покрывать весь диапазон сумм, накопленных на карте!</p>
+        </div>
+        <div>
+            <a class="btn btn-primary" th:href="@{/manager/bonus/add}">СОЗДАТЬ</a>
+        </div>
     </div>
     <div class="row">
         <div class="col-md-4 mb-4" th:each="discount : ${discounts}">
@@ -28,21 +33,27 @@
                 <div class="card-body">
                     <h3 class="card-title mb-1" th:text="${discount.discountName}">Discount Name</h3>
                     <p class="card-text mb-1"><span th:text="${discount.description}">Description</span></p>
-                    <p class="card-text mb-1"><strong>Скидка:</strong> <span th:text="${discount.discountPercent}">Percent</span></p>
-                    <p class="card-text mb-1"><strong>Условие:</strong> <span th:text="'Сумма покупок от ' + ${discount.minSum} + ' до ' + ${discount.maxSum}">Условия</span></p>
-                    <p class="card-text mb-1"><span th:text="${discount.active ? '&#9989; Действует' : '&#10060; Неактивна'}">Active</span></p>
+                    <p class="card-text mb-1"><strong>Скидка:</strong> <span th:text="${discount.discountPercent}">Percent</span>
+                    </p>
+                    <p class="card-text mb-1"><strong>Условие:</strong> <span
+                            th:text="'Сумма покупок от ' + ${discount.minSum} + ' до ' + ${discount.maxSum}">Условия</span>
+                    </p>
+                    <p class="card-text mb-1"><span
+                            th:text="${discount.active ? '&#9989; Действует' : '&#10060; Неактивна'}">Active</span></p>
                 </div>
                 <div class="card-footer d-flex justify-content-end">
                     <a th:href="@{'/manager/bonus/edit/' + ${discount.discountId}}" class="btn btn-warning mr-2">ИЗМЕНИТЬ</a>
 
                     <!-- Кнопка "БЛОКИРОВАТЬ" -->
-                    <form th:if="${discount.active}" th:action="@{/manager/bonus/inactivate}" method="post" class="d-inline">
+                    <form th:if="${discount.active}" th:action="@{/manager/bonus/inactivate}" method="post"
+                          class="d-inline">
                         <input type="hidden" name="id" th:value="${discount.discountId}"/>
                         <button type="submit" class="btn btn-danger">Блокировать</button>
                     </form>
 
                     <!-- Кнопка "АКТИВИРОВАТЬ" -->
-                    <form th:if="${!discount.active}" th:action="@{/manager/bonus/activate}" method="post" class="d-inline">
+                    <form th:if="${!discount.active}" th:action="@{/manager/bonus/activate}" method="post"
+                          class="d-inline">
                         <input type="hidden" name="id" th:value="${discount.discountId}"/>
                         <button type="submit" class="btn btn-success">Активировать</button>
                     </form>
