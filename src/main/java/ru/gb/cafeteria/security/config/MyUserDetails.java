@@ -41,7 +41,12 @@ public class MyUserDetails implements UserDetails {
     public boolean isCredentialsNonExpired() {return true; }
 
     @Override
-    public boolean isEnabled() { // Проверка, что аккаунт действителен до даты увольнения
+    // Проверка, что аккаунт действителен в диапазон дат между приёмом и увольнением
+    public boolean isEnabled() {
+        LocalDate dateBegin = user.getStaff().getDateBegin();
         LocalDate dateEnd = user.getStaff().getDateEnd();
-        return user.getEnabled() && (dateEnd == null || !LocalDate.now().isAfter(dateEnd)); }
+        LocalDate today = LocalDate.now();
+        return user.getEnabled() && !today.isBefore(dateBegin) && (dateEnd == null || !today.isAfter(dateEnd));
+    }
+
 }
