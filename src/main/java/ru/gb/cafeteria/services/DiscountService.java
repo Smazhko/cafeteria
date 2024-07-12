@@ -1,8 +1,9 @@
-package ru.gb.cafeteria.domain;
+package ru.gb.cafeteria.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.gb.cafeteria.aspects.TrackUserAction;
+import ru.gb.cafeteria.domain.DiscountType;
 import ru.gb.cafeteria.repository.BonusCardRepository;
 import ru.gb.cafeteria.repository.DiscountRepository;
 

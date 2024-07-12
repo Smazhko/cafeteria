@@ -5,9 +5,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.gb.cafeteria.aspects.TrackUserAction;
-import ru.gb.cafeteria.domain.DiscountService;
+import ru.gb.cafeteria.services.DiscountService;
 import ru.gb.cafeteria.domain.DiscountType;
-import ru.gb.cafeteria.services.BonusCardService;
 
 import java.util.List;
 
