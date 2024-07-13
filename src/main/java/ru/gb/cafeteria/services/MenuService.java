@@ -3,6 +3,7 @@ package ru.gb.cafeteria.services;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import ru.gb.cafeteria.aspects.TrackUserAction;
 import ru.gb.cafeteria.domain.FoodGroup;
 import ru.gb.cafeteria.domain.MenuItem;
 import ru.gb.cafeteria.repository.FoodGroupRepository;
@@ -83,9 +84,11 @@ public class MenuService {
     }
 
 
+    @TrackUserAction
     // поиск по меню - для поисковой строки
     public List<MenuItem> searchNonArchivedMenuItems(String search) {
-        return menuRepo.searchNonArchivedMenuItems(search);
+        String searchLowerCase = search.toLowerCase();
+        return menuRepo.searchNonArchivedMenuItems(searchLowerCase);
     }
 
 
@@ -106,7 +109,6 @@ public class MenuService {
                 newItem.setSpecialPrice(newItem.getPrice());
             if (newItem.getImageURL() == null || newItem.getImageURL().trim().isEmpty())
                 newItem.setImageURL(FOOD_DEFAULT_PNG);
-            newItem.setQuantity(0);
             newItem.setArchived(false);
             // в модели сохраняется только ID группы, поэтому, чтобы класс был полным, сохраняем группы заново
             FoodGroup foodGroup = groupRepo.findById(newItem.getFoodGroup().getGroupId()).orElseThrow();

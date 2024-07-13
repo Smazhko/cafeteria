@@ -41,7 +41,4 @@ public class MenuItem {
 
     @Column(name="status_change_time", nullable = false)
     private LocalDateTime statusChangeTime;
-
-    @Transient
-    private Integer quantity = 0;
 }

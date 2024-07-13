@@ -194,26 +194,35 @@
             const itemTotal = (price * item.quantity).toFixed(2);
             totalCost += parseFloat(itemTotal);
 
-            const row = document.createElement('tr');
-            row.id = 'basket_item_' + item.menuItem.id;
+            // Создание новой строки, если она не существует
+            let row = document.getElementById('basket_item_' + item.menuItem.id);
+            if (!row) {
+                row = document.createElement('tr');
+                row.id = 'basket_item_' + item.menuItem.id;
+                basketElement.appendChild(row);
+            }
+
             row.innerHTML = `
                 <td>${item.menuItem.name}</td>
                 <td>${price.toFixed(2)}</td>
                 <td>×${item.quantity}</td>
                 <td>${itemTotal}</td>
             `;
-            basketElement.appendChild(row);
 
             // Обновление количества в карточках
             const quantityInput = document.getElementById('quantity_' + item.menuItem.id);
             const decreaseButton = document.getElementById('decrease_' + item.menuItem.id);
-            quantityInput.value = item.quantity;
-            decreaseButton.disabled = item.quantity === 0;
+
+            if (quantityInput) {
+                quantityInput.value = item.quantity;
+            }
+            if (decreaseButton) {
+                decreaseButton.disabled = item.quantity === 0;
+            }
         });
 
         document.getElementById('total-cost').innerText = totalCost.toFixed(2);
     }
-
 
     function resetBasket() {
         $.ajax({
@@ -246,6 +255,7 @@
             proceedButton.disabled = false;
         }
     }
+
 
 </script>
 </body>

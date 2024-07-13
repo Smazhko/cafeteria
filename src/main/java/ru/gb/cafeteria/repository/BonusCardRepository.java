@@ -10,11 +10,10 @@ import java.util.List;
 
 @Repository
 public interface BonusCardRepository extends JpaRepository<BonusCard, Long> {
-    List<BonusCard> findByClientName(String name);
-
-    List<BonusCard> findByClientPhone(String name);
 
     boolean existsByClientPhone(String clientPhone);
+
+    List<BonusCard> findByClientPhone(String name);
 
     Page<BonusCard> findByClientPhoneContaining(String phone, Pageable pageable);
 

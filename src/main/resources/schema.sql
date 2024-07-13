@@ -40,8 +40,8 @@ CREATE TABLE menu_items(
 	price DECIMAL(10, 2) NOT NULL,
 	special_price DECIMAL(10, 2) NOT NULL,
 	image VARCHAR(255),
-	is_active TINYINT NOT NULL,
-    is_archived TINYINT NOT NULL,
+	is_active BOOLEAN NOT NULL,
+    is_archived BOOLEAN NOT NULL,
     status_change_time TIMESTAMP NOT NULL,
     FOREIGN KEY (group_id) REFERENCES food_groups(group_id)
 );
