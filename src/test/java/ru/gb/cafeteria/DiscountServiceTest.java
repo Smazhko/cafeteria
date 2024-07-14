@@ -18,7 +18,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+
 @ExtendWith(MockitoExtension.class)
 public class DiscountServiceTest {
 
@@ -35,7 +37,6 @@ public class DiscountServiceTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         discount = new DiscountType();
         discount.setDiscountId(1L);
         discount.setDiscountName("Test Discount");
@@ -48,9 +49,12 @@ public class DiscountServiceTest {
 
     @Test
     public void testGetAllDiscounts() {
-        when(discountRepo.findAll()).thenReturn(Arrays.asList(discount));
+        given(discountRepo.findAll()).willReturn(List.of(discount));
+
         List<DiscountType> discounts = discountService.getAllDiscounts();
+
         assertEquals(1, discounts.size());
+
         assertEquals(discount, discounts.get(0));
     }
 
