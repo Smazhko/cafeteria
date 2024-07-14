@@ -51,9 +51,6 @@ public class StaffService {
         return staffRepo.findAll();
     }
 
-    public List<User> getAllUsers() {
-        return userRepo.findAll();
-    }
 
     public User createUser(User newUser, Long roleId) {
         Role role = roleRepo.findById(roleId).orElseThrow();
@@ -80,10 +77,6 @@ public class StaffService {
         return staffRepo.findById(id).orElseThrow();
     }
 
-    public Staff findStaffByUsername(String username) {
-        User user = userRepo.findByUsername(username).orElseThrow();
-        return staffRepo.findByUser(user).orElseThrow();
-    }
 
     public Role getRoleById(Long id) {
         return roleRepo.findById(id).orElseThrow();
@@ -93,8 +86,10 @@ public class StaffService {
         return userRepo.save(user);
     }
 
+
     // обновляем данные по сотруднику.
-    // а также по его аккаунту. если выставили дату увольнения, то аккаунт деактивируется, чтоб по нему нельзя было зайти
+    // а также по его аккаунту. если выставили дату увольнения, то аккаунт будет активен только до даты увольнения,
+    // чтоб по нему нельзя было зайти
     public void updateStaffDetails(Staff staff, String username, String password, Long roleId) {
         Staff existingStaff = staffRepo.findById(staff.getStaffId()).orElseThrow();
         User user = existingStaff.getUser();

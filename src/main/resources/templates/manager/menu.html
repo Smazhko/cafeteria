@@ -104,7 +104,7 @@
                                th:onclick="'toggleActive(' + ${item.id} + ')'">
                     </div>
                     <div>
-                        <a class="imgButton" th:href="@{menu/update/{id}(id=${item.id})}" title="Редактировать блюдо">
+                        <a class="imgButton" th:href="@{/manager/menu/update/{id}(id=${item.id})}" title="Редактировать блюдо">
                             <img class="imgButton" th:src="@{/img/edit.png}">
                         </a>
                     </div>

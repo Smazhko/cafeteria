@@ -31,8 +31,6 @@ public class CashierMenuController {
     private void initializeModel(Model model, HttpSession session, List<MenuItem> menuItems) {
         Map<String, List<MenuItem>> groupedMenuItems = menuService.getSortedMenu(menuItems);
         model.addAttribute("groupedMenuItems", groupedMenuItems);
-        // model.addAttribute("search", "");
-        // model.addAttribute("searchIsEmpty", false);
 
         // Добавление корзины в модель
         BasketDTO basket = basketService.getBasket(session);

@@ -1,20 +1,14 @@
 package ru.gb.cafeteria.security.services;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.gb.cafeteria.security.domain.Role;
 import ru.gb.cafeteria.security.domain.User;
-import ru.gb.cafeteria.security.repository.RoleRepository;
 import ru.gb.cafeteria.security.repository.UserRepository;
-import ru.gb.cafeteria.security.config.MyUserDetails;
-import ru.gb.cafeteria.services.StaffService;
+import ru.gb.cafeteria.security.domain.MyUserDetails;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service

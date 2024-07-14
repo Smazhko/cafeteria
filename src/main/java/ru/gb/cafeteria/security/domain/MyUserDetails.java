@@ -1,4 +1,4 @@
-package ru.gb.cafeteria.security.config;
+package ru.gb.cafeteria.security.domain;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -43,10 +43,14 @@ public class MyUserDetails implements UserDetails {
     @Override
     // Проверка, что аккаунт действителен в диапазон дат между приёмом и увольнением
     public boolean isEnabled() {
-        LocalDate dateBegin = user.getStaff().getDateBegin();
-        LocalDate dateEnd = user.getStaff().getDateEnd();
-        LocalDate today = LocalDate.now();
-        return user.getEnabled() && !today.isBefore(dateBegin) && (dateEnd == null || !today.isAfter(dateEnd));
+        if (user.getStaff() == null) {
+            return true;
+        } else {
+            LocalDate dateBegin = user.getStaff().getDateBegin();
+            LocalDate dateEnd = user.getStaff().getDateEnd();
+            LocalDate today = LocalDate.now();
+            return user.getEnabled() && !today.isBefore(dateBegin) && (dateEnd == null || !today.isAfter(dateEnd));
+        }
     }
 
 }

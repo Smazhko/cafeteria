@@ -47,5 +47,3 @@ public class User  {
                 .toString();
     }
 }
-//    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-//    private Set<Authority> authorities;
