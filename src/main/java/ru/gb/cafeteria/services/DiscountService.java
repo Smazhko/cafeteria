@@ -25,8 +25,9 @@ public class DiscountService {
         return discountRepo.findById(id).orElseThrow(() -> new RuntimeException("Discount not found"));
     }
 
-    // шаблон настроен не пропускать некоректные значения.
-    // но для пущей верности перепроверяем перед сохранением,
+
+    // шаблон настроен не пропускать некорректные значения.
+    // но для пущей верности перепроверяем значения перед сохранением,
     // если некорректно - по-тихому меняем и сохраняем.
     public void saveDiscount(DiscountType discount) {
         if (discount.getDiscountPercent() < 0 || discount.getDiscountPercent() > 100) {
@@ -38,8 +39,8 @@ public class DiscountService {
             discount.setMaxSum(discount.getMinSum().add(BigDecimal.ONE));
             discountRepo.save(discount);
         }
-
     }
+
 
     @TrackUserAction
     public void deleteDiscountById(Long id) {
@@ -47,6 +48,7 @@ public class DiscountService {
             discountRepo.deleteById(id);
         }
     }
+
 
     // проверяем - возможно ли удаление дисконта
     // удалить можно только те дисконты, которые не привязаны к карточкам

@@ -28,6 +28,8 @@ public class StaffService {
         return staffRepo.save(newPerson);
     }
 
+    // быстрое увольнение сотрудника.
+    // устанавливается сегодняшняя дата. деактивируется аккаунт
     public void inactivateStaffById(Long staffId, LocalDate dateEnd) {
         Staff staff = staffRepo.findById(staffId).orElseThrow();
         staff.setDateEnd(dateEnd);
@@ -37,6 +39,8 @@ public class StaffService {
         userRepo.save(user);
     }
 
+    // быстрый приём ранее уволенного сотрудника
+    // активируется его старый аккаунт.
     public void reactivateStaffById(Long staffId) {
         Staff staff = staffRepo.findById(staffId).orElseThrow();
         staff.setDateBegin(LocalDate.now());
@@ -52,6 +56,7 @@ public class StaffService {
     }
 
 
+    // создание нового сотрудника, шифровка пароля для записи в БД.
     public User createUser(User newUser, Long roleId) {
         Role role = roleRepo.findById(roleId).orElseThrow();
         newUser.setPassword(passwordEncoder.encode(newUser.getPassword()));
@@ -59,6 +64,7 @@ public class StaffService {
         return userRepo.save(newUser);
     }
 
+    // фильтр сотрудников по роли
     public List<Staff> getStaffByRole(Role role) {
         return staffRepo.findAll().stream()
                 .filter(staff -> staff.getUser().getRole().equals(role))
@@ -119,6 +125,7 @@ public class StaffService {
         return passwordEncoder.encode(password);
     }
 
+    // проверяем, нет ли сотрудника с таким логином
     public boolean usernameExists(String username) {
         return userRepo.findByUsername(username).isPresent();
     }

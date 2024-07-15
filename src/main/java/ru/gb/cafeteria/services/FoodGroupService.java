@@ -31,12 +31,17 @@ public class FoodGroupService {
         return foodGroupRepo.findById(id).orElseThrow();
     }
 
+
+    // обновляем группу.
+    // сохраняем только, если имя уникальное
     @Transactional
     public void updateFoodGroup (FoodGroup updatedGroup){
         if (!foodGroupRepo.existsByName(updatedGroup.getName()))
             foodGroupRepo.save(updatedGroup);
     }
 
+    // создаём новую группу,
+    // проверяем, чтобы имя было непустое и не такое, которое уже существует
     @Transactional
     public void addNewFoodGroup (FoodGroup newGroup) {
         if (!newGroup.getName().isEmpty()
@@ -48,6 +53,8 @@ public class FoodGroupService {
         rePositionGroups();
     }
 
+    // удаление группы - если только у ней нет блюд.
+    // после удаления пересчитываем позиции групп по порядку.
     @Transactional
     public void deleteFoodGroupById (Long id){
         FoodGroup groupToDelete = getFoodGroupById(id);
@@ -73,6 +80,8 @@ public class FoodGroupService {
         foodGroupRepo.saveAll(groupsList);
     }
 
+    // меняем последовательность групп,
+    // учитываем начало или конец списка
     @Transactional
     public void changeFoodGroupOrder(Long groupId, boolean moveUp) {
         FoodGroup currGroup = foodGroupRepo.findById(groupId).orElseThrow();
@@ -96,6 +105,7 @@ public class FoodGroupService {
         rePositionGroups();
     }
 
+    // получаем количество блюд в каждой группе
     public Map<Long, Integer> getFoodCountsByGroup() {
         List<FoodGroup> groups = getAllFoodGroups();
         Map<Long, Integer> foodCounts = new HashMap<>();

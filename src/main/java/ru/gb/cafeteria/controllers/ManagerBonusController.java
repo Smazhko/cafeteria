@@ -54,13 +54,13 @@ public class ManagerBonusController {
         return "redirect:/manager/bonus";
     }
 
-    @TrackUserAction
-    @PostMapping("/delete")
-    public String deleteDiscount2(@RequestParam Long id) {
-        System.out.println("DELETING 2" + id);
-        discountService.deleteDiscountById(id);
-        return "redirect:/manager/bonus";
-    }
+//    @TrackUserAction
+//    @PostMapping("/delete")
+//    public String deleteDiscount2(@RequestParam Long id) {
+//        System.out.println("DELETING 2" + id);
+//        discountService.deleteDiscountById(id);
+//        return "redirect:/manager/bonus";
+//    }
 
     @PostMapping("/inactivate")
     public String inactivateDiscount(@RequestParam Long id) {

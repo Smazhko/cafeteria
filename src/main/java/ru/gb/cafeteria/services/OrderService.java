@@ -22,7 +22,6 @@ public class OrderService {
 
     private OrderRepository orderRepo;
     private OrderStatusRepository orderStatusRepo;
-    private ReceiptRepository receiptRepo;
     private ReceiptStatusRepository receiptStatusRepo;
     private UserRepository userRepo;
     private StaffRepository staffRepo;

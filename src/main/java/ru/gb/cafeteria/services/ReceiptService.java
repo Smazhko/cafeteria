@@ -59,7 +59,7 @@ public class ReceiptService {
         return receiptRepo.findByReceiptStatusAndReceivedFalse(closedStatus);
     }
 
-
+    // получение списка чеков после применения фильтра. даты С и ПО - включаются в поиск
     public List<Receipt> getFilteredReceipts(LocalDate startDate, LocalDate endDate, Long statusId) {
         if (startDate == null) {
             return (statusId == null || statusId == 0) ?
@@ -150,6 +150,10 @@ public class ReceiptService {
         return newReceipt;
     }
 
+
+    // генерируем код на чек для клиента:
+    // достаём из БД список кодов чеков за сегодня и узнаём максимальную цифровую часть из этого списка
+    // формируем код нового чека - случайная буква от А до Е и число, следующее за максимумом
     public String generateClientCode() {
         LocalDate today = LocalDate.now();
         LocalDateTime startOfDay = today.atStartOfDay();
@@ -170,7 +174,10 @@ public class ReceiptService {
     }
 
 
-
+    // формируем список заказов на кухню на основании корзины.
+    // стоимость каждого заказа формируем по спец цене, если она есть
+    // прикрепляем чек к каждому заказу
+    // сохранять заказы по одному не надо - они сохранятся в БД автоматом при сохранении чека.
     @TrackUserAction
     public List<Order> createOrderList(Receipt receipt, BasketDTO basket) {
         OrderStatus formedStatus = orderStatusRepo.findByStatusName("FORMING");
@@ -203,6 +210,7 @@ public class ReceiptService {
     }
 
 
+    // применение скидки к чеку
     @Transactional
     public Receipt applyBonusCard(Long receiptId, Long cardId) {
         Receipt receipt = getReceiptById(receiptId);
@@ -213,6 +221,8 @@ public class ReceiptService {
     }
 
 
+    // оплата чека: изменение статуса, установка времени, отправка заказов на кухню
+    // добавление суммы чека к сумме покупок на бонусную карту.
     @TrackUserAction
     @Transactional
     public void payReceiptById(Long receiptId, HttpSession session) {
@@ -288,6 +298,7 @@ public class ReceiptService {
         return receipt;
     }
 
+    // отправка заказов на кухню - изменение статуса всех заказов в чеке.
     @TrackUserAction
     @Transactional
     public void sendReceiptOrdersToKitchen(Receipt receipt) {
@@ -298,6 +309,7 @@ public class ReceiptService {
         saveReceipt(receipt);
     }
 
+    // получение клиентом заказа
     @Transactional
     public void receiveReceipt(Long receiptId) {
         Receipt receipt = getReceiptById(receiptId);

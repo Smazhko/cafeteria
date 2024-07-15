@@ -125,12 +125,6 @@ public class ManagerMenuController {
         return "redirect:/manager/menu";
     }
 
-    @PostMapping("/inactivate/{id}")
-    public String inactivateMenuItem(@PathVariable Long id) {
-        menuService.updateMenuItemStatus(id, false);
-        return "redirect:/manager/menu";
-    }
-
 
     @PostMapping("/toggle-active/{id}")
     @ResponseBody

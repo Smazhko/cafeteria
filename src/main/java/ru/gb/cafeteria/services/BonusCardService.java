@@ -49,6 +49,9 @@ public class BonusCardService {
     }
 
 
+    // обновить скидку в бонусной карте:
+    // пройтись по всем дисконтам (скидкам) и проверить,
+    // в диапазон какой скидки попадает накопленная на карточке сумма - такую скидку и применить к бонусной карте
     public void refreshDiscount(Long cardId) {
         BonusCard card = cardRepo.findById(cardId).orElseThrow();
         BigDecimal totalSum = card.getTotalSum();
@@ -62,7 +65,10 @@ public class BonusCardService {
         cardRepo.save(card);
     }
 
+    // создаём новую бонусную карту
     // если телефон клиента уже есть в базе, выбрасываем исключение
+    // автоматически применяем подходящую скидку - поиск по таблице скидок,
+    // в какой из них диапазон накопленных сумм начинается с нуля
     public BonusCard createCard(BonusCard newCard) {
         if (!existsByClientPhone(newCard.getClientPhone())) {
             newCard.setTimeRegister(LocalDateTime.now());
@@ -80,6 +86,4 @@ public class BonusCardService {
             throw new DuplicatePhoneException("A bonus card with phone number " + newCard.getClientPhone() + " already exists");
         }
     }
-
-
 }

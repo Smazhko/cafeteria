@@ -66,7 +66,8 @@ public class ManagerStaffController {
 
     @PostMapping("/add")
     public String addStaff(@Valid @ModelAttribute Staff staff, BindingResult bindingResult,
-                           @RequestParam String username, @RequestParam String password,
+                           @RequestParam String username,
+                           @RequestParam String password,
                            @RequestParam Long roleId, Model model) {
 
         if (bindingResult.hasErrors()) {
@@ -99,7 +100,10 @@ public class ManagerStaffController {
     }
 
     @PostMapping("/update")
-    public String editStaff(@ModelAttribute Staff staff, @RequestParam String username, @RequestParam(required = false) String password, @RequestParam Long roleId) {
+    public String editStaff(@ModelAttribute Staff staff,
+                            @RequestParam String username,
+                            @RequestParam(required = false) String password,
+                            @RequestParam Long roleId) {
 
         staffService.updateStaffDetails(staff, username, password, roleId);
 

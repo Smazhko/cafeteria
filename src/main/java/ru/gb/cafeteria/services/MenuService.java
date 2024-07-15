@@ -44,6 +44,7 @@ public class MenuService {
                 .collect(Collectors.toList());
     }
 
+
     public Boolean isMenuItemActiveById(Long id) {
         MenuItem item = menuRepo.findById(id).orElseThrow();
         return item.getActive();

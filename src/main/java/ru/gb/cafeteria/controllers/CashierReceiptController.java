@@ -24,9 +24,7 @@ import java.util.List;
 @RequestMapping("/cashier/receipt")
 public class CashierReceiptController {
 
-    private MenuService menuService;
     private ReceiptService receiptService;
-    private OrderService orderService;
     private BonusCardService bonusCardService;
     private BasketService basketService;
 

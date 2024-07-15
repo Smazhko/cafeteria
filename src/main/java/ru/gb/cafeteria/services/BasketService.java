@@ -15,7 +15,7 @@ public class BasketService {
 
     private final MenuService menuService;
 
-
+    // получить корзину
     public BasketDTO getBasket(HttpSession session) {
         BasketDTO basket = (BasketDTO) session.getAttribute("basket");
         if (basket == null) {
@@ -25,6 +25,11 @@ public class BasketService {
         return basket;
     }
 
+
+    // метод обновления корзины.
+    // получаем объект из сессии - если он пуст, значит создаём новый.
+    // проверяем корзину - если добавляемый объект в ней уже имеется, то увеличиваем его количество,
+    // если количество добавляемого объекта = 0, то удаляем его из корзины.
     public void updateQuantity(Long menuItemId, int quantity, HttpSession session) {
         BasketDTO basket = (BasketDTO) session.getAttribute("basket");
         if (basket == null) {
@@ -51,6 +56,8 @@ public class BasketService {
         session.setAttribute("basket", basket);
     }
 
+
+    // очистить корзину
     public void clearBasket(HttpSession session) {
         session.removeAttribute("basket");
     }
